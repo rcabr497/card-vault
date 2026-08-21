@@ -88,8 +88,14 @@ export function AddCardForm({ binderId, binderType }: { binderId: string; binder
           rarity: data.rarity ?? "",
           team: data.team ?? "",
           imageUrl: data.imageUrl ?? f.imageUrl,
+          currentValue: typeof data.estimatedValue === "number" ? String(data.estimatedValue) : f.currentValue,
         }));
-        setStatus(`Detected: ${CATEGORIES.find((c) => c.value === data.category)?.label ?? data.category}`);
+        const detected = CATEGORIES.find((c) => c.value === data.category)?.label ?? data.category;
+        setStatus(
+          typeof data.estimatedValue === "number"
+            ? `Detected: ${detected} — est. value $${data.estimatedValue.toFixed(2)}`
+            : `Detected: ${detected}`
+        );
       }
     } catch {
       setStatus(null);
@@ -136,7 +142,23 @@ export function AddCardForm({ binderId, binderType }: { binderId: string; binder
           year: identifyData.year ? String(identifyData.year) : f.year,
           rarity: identifyData.rarity ?? f.rarity,
         }));
-        setStatus(`Matched with ${Math.round((identifyData.confidence ?? 0) * 100)}% confidence — review and save.`);
+        const confidencePct = Math.round((identifyData.confidence ?? 0) * 100);
+        setStatus(`Matched with ${confidencePct}% confidence — checking price…`);
+
+        // CardVault's own pricing is paid-plan only; piggyback on the free
+        // name-lookup APIs (which already carry market prices) for a value estimate.
+        try {
+          const priceRes = await fetch(`/api/cards/lookup-name?name=${encodeURIComponent(identifyData.name)}`);
+          const priceData = await priceRes.json();
+          if (typeof priceData.estimatedValue === "number") {
+            setFields((f) => ({ ...f, currentValue: String(priceData.estimatedValue) }));
+            setStatus(`Matched with ${confidencePct}% confidence — est. value $${priceData.estimatedValue.toFixed(2)}`);
+          } else {
+            setStatus(`Matched with ${confidencePct}% confidence — review and save.`);
+          }
+        } catch {
+          setStatus(`Matched with ${confidencePct}% confidence — review and save.`);
+        }
       }
     } catch (err) {
       setStatus(null);

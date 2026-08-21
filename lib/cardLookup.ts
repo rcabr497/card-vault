@@ -7,6 +7,7 @@ type LookupResult = {
   rarity: string | null;
   team: string | null;
   imageUrl: string | null;
+  estimatedValue: number | null;
 };
 
 async function searchPokemon(name: string): Promise<LookupResult | null> {
@@ -22,6 +23,14 @@ async function searchPokemon(name: string): Promise<LookupResult | null> {
   const card = data?.data?.[0];
   if (!card) return null;
 
+  const tcgPrices = card.tcgplayer?.prices;
+  const marketPrice =
+    tcgPrices?.normal?.market ??
+    tcgPrices?.holofoil?.market ??
+    tcgPrices?.reverseHolofoil?.market ??
+    tcgPrices?.["1stEditionHolofoil"]?.market ??
+    null;
+
   return {
     category: "pokemon",
     name: card.name,
@@ -31,6 +40,7 @@ async function searchPokemon(name: string): Promise<LookupResult | null> {
     rarity: card.rarity ?? null,
     team: Array.isArray(card.types) ? card.types.join(", ") : null,
     imageUrl: card.images?.large ?? null,
+    estimatedValue: typeof marketPrice === "number" ? marketPrice : null,
   };
 }
 
@@ -41,6 +51,7 @@ async function searchScryfall(name: string): Promise<LookupResult | null> {
   if (!card?.name) return null;
 
   const imageUrl = card.image_uris?.normal ?? card.card_faces?.[0]?.image_uris?.normal ?? null;
+  const usdPrice = card.prices?.usd ? parseFloat(card.prices.usd) : null;
 
   return {
     category: "mtg",
@@ -51,6 +62,7 @@ async function searchScryfall(name: string): Promise<LookupResult | null> {
     rarity: card.rarity ?? null,
     team: Array.isArray(card.color_identity) ? card.color_identity.join(", ") : null,
     imageUrl,
+    estimatedValue: usdPrice !== null && !Number.isNaN(usdPrice) ? usdPrice : null,
   };
 }
 

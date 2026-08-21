@@ -25,7 +25,6 @@ export default async function DashboardPage() {
       <div className="topbar">
         <h1 className="topbar-title">Dashboard</h1>
         <div className="topbar-actions">
-          <input type="search" placeholder="Search your collection…" className="input" style={{ width: 260 }} />
           <Link href="/binders" className="btn btn-primary">
             <IconPlus />
             Add Card

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 
 export type CardListItem = {
@@ -17,35 +17,54 @@ export type CardListItem = {
 
 export function CardGridOrList({ cards }: { cards: CardListItem[] }) {
   const [view, setView] = useState<"grid" | "list">("grid");
+  const [q, setQ] = useState("");
+
+  const filtered = useMemo(() => {
+    const term = q.trim().toLowerCase();
+    if (!term) return cards;
+    return cards.filter((c) => c.name.toLowerCase().includes(term));
+  }, [cards, q]);
 
   return (
     <div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, gap: 14, flexWrap: "wrap" }}>
         <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 17, margin: 0 }}>All cards</h2>
-        <div style={{ display: "flex", gap: 6 }}>
-          <button
-            type="button"
-            className={`pill${view === "grid" ? " pill-active" : ""}`}
-            onClick={() => setView("grid")}
-          >
-            Grid
-          </button>
-          <button
-            type="button"
-            className={`pill${view === "list" ? " pill-active" : ""}`}
-            onClick={() => setView("list")}
-          >
-            List
-          </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <input
+            type="search"
+            className="input"
+            placeholder="Search your collection…"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            style={{ width: 220 }}
+          />
+          <div style={{ display: "flex", gap: 6 }}>
+            <button
+              type="button"
+              className={`pill${view === "grid" ? " pill-active" : ""}`}
+              onClick={() => setView("grid")}
+            >
+              Grid
+            </button>
+            <button
+              type="button"
+              className={`pill${view === "list" ? " pill-active" : ""}`}
+              onClick={() => setView("list")}
+            >
+              List
+            </button>
+          </div>
         </div>
       </div>
 
       {cards.length === 0 ? (
         <p style={{ fontSize: 13.5, color: "var(--text-soft)" }}>No cards logged yet.</p>
+      ) : filtered.length === 0 ? (
+        <p style={{ fontSize: 13.5, color: "var(--text-soft)" }}>No cards match &quot;{q}&quot;.</p>
       ) : view === "grid" ? (
         <div className="grid grid-5">
-          {cards.map((c) => (
-            <Link key={c.id} href={`/binders/${c.binderId}`} className="tile" style={{ padding: 12, gap: 8 }}>
+          {filtered.map((c) => (
+            <Link key={c.id} href={`/cards/${c.id}`} className="tile" style={{ padding: 12, gap: 8 }}>
               <div className="card-photo">
                 {c.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -67,10 +86,10 @@ export function CardGridOrList({ cards }: { cards: CardListItem[] }) {
         </div>
       ) : (
         <div className="surface-card" style={{ overflow: "hidden" }}>
-          {cards.map((c, i) => (
+          {filtered.map((c, i) => (
             <Link
               key={c.id}
-              href={`/binders/${c.binderId}`}
+              href={`/cards/${c.id}`}
               style={{
                 display: "flex",
                 alignItems: "center",

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { formatMoney } from "@/lib/stats";
 import { AppShell } from "@/components/AppShell";
 import { IconPlus, IconChevronLeft, IconChevronRight } from "@/components/icons";
+import { BinderSearchInput } from "@/components/BinderSearchInput";
 import { CardCondition } from "@prisma/client";
 
 const PAGE_SIZE = 15;
@@ -72,10 +73,7 @@ export default async function BinderDetailPage({
           </div>
         </div>
         <div className="topbar-actions">
-          <form action={`/binders/${binder.id}`} className="topbar-actions" style={{ margin: 0 }}>
-            <input type="hidden" name="condition" value={condition} />
-            <input type="search" name="q" defaultValue={q} placeholder="Search this binder…" className="input" style={{ width: 220 }} />
-          </form>
+          <BinderSearchInput binderId={binder.id} initialQ={q} condition={condition} />
           <Link href={`/binders/${binder.id}/add`} className="btn btn-primary">
             <IconPlus />
             Add Card
@@ -98,7 +96,7 @@ export default async function BinderDetailPage({
         ) : (
           <div className="grid grid-5">
             {cards.map((c) => (
-              <div key={c.id} className="tile" style={{ padding: 12, gap: 8 }}>
+              <Link key={c.id} href={`/cards/${c.id}`} className="tile" style={{ padding: 12, gap: 8 }}>
                 <div className="card-photo">
                   {c.imageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -117,7 +115,7 @@ export default async function BinderDetailPage({
                     {formatMoney(c.currentValue)}
                   </span>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}
