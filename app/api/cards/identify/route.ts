@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { identifyCardImage } from "@/lib/cardVault";
+import { identifyCardImage } from "@/lib/cardSight";
 
 export async function POST(req: Request) {
   const session = await auth();

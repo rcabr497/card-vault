@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CameraCapture } from "./CameraCapture";
 import { IconUpload } from "./icons";
@@ -63,12 +63,16 @@ export function AddCardForm({ binderId, binderType }: { binderId: string; binder
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  const lastLookedUpRef = useRef("");
+
   function set<K extends keyof Fields>(key: K, value: Fields[K]) {
     setFields((f) => ({ ...f, [key]: value }));
   }
 
   async function handleLookupByName() {
-    if (!fields.name.trim()) return;
+    const trimmed = fields.name.trim();
+    if (!trimmed) return;
+    lastLookedUpRef.current = trimmed;
     setBusy(true);
     setStatus("Looking up…");
     setError(null);
@@ -105,6 +109,15 @@ export function AddCardForm({ binderId, binderType }: { binderId: string; binder
     }
   }
 
+  useEffect(() => {
+    if (mode !== "manual" || busy) return;
+    const trimmed = fields.name.trim();
+    if (trimmed.length < 3 || trimmed === lastLookedUpRef.current) return;
+    const timer = setTimeout(() => handleLookupByName(), 500);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fields.name, mode, busy]);
+
   async function handlePhoto(fileOrBlob: File | Blob) {
     setBusy(true);
     setStatus("Uploading photo…");
@@ -128,6 +141,7 @@ export function AddCardForm({ binderId, binderType }: { binderId: string; binder
 
       if (!identifyRes.ok) {
         setStatus("Photo saved — couldn't auto-identify the card, enter details manually.");
+        setError(identifyData.error ?? "Card recognition failed.");
         return;
       }
 
@@ -141,23 +155,25 @@ export function AddCardForm({ binderId, binderType }: { binderId: string; binder
           cardNumber: identifyData.cardNumber ?? f.cardNumber,
           year: identifyData.year ? String(identifyData.year) : f.year,
           rarity: identifyData.rarity ?? f.rarity,
+          gradingCompany: identifyData.gradingCompany ?? f.gradingCompany,
+          grade: identifyData.grade ?? f.grade,
         }));
-        const confidencePct = Math.round((identifyData.confidence ?? 0) * 100);
-        setStatus(`Matched with ${confidencePct}% confidence — checking price…`);
+        const confidenceLabel = identifyData.confidence ?? "unknown";
+        setStatus(`Matched with ${confidenceLabel} confidence — checking price…`);
 
-        // CardVault's own pricing is paid-plan only; piggyback on the free
-        // name-lookup APIs (which already carry market prices) for a value estimate.
+        // CardSight doesn't include pricing on the free tier; piggyback on the
+        // free name-lookup APIs (which already carry market prices) instead.
         try {
           const priceRes = await fetch(`/api/cards/lookup-name?name=${encodeURIComponent(identifyData.name)}`);
           const priceData = await priceRes.json();
           if (typeof priceData.estimatedValue === "number") {
             setFields((f) => ({ ...f, currentValue: String(priceData.estimatedValue) }));
-            setStatus(`Matched with ${confidencePct}% confidence — est. value $${priceData.estimatedValue.toFixed(2)}`);
+            setStatus(`Matched with ${confidenceLabel} confidence — est. value $${priceData.estimatedValue.toFixed(2)}`);
           } else {
-            setStatus(`Matched with ${confidencePct}% confidence — review and save.`);
+            setStatus(`Matched with ${confidenceLabel} confidence — review and save.`);
           }
         } catch {
-          setStatus(`Matched with ${confidencePct}% confidence — review and save.`);
+          setStatus(`Matched with ${confidenceLabel} confidence — review and save.`);
         }
       }
     } catch (err) {

@@ -13,6 +13,10 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "name is required." }, { status: 400 });
   }
 
-  const result = await lookupCardByName(name);
-  return NextResponse.json(result ?? { found: false });
+  try {
+    const result = await lookupCardByName(name);
+    return NextResponse.json(result ?? { found: false });
+  } catch {
+    return NextResponse.json({ found: false });
+  }
 }
