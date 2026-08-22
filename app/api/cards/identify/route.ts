@@ -17,7 +17,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const result = await identifyCardImage(imageUrl, categoryHint);
+    const result = await identifyCardImage(imageUrl, categoryHint, session.user.id);
     return NextResponse.json(result);
   } catch (err) {
     return NextResponse.json(

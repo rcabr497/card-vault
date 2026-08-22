@@ -14,7 +14,7 @@ export default async function BindersPage() {
   const binders = await prisma.binder.findMany({
     where: { userId },
     orderBy: { updatedAt: "desc" },
-    include: { cards: { select: { currentValue: true, quantity: true, imageUrl: true } } },
+    include: { cards: { select: { currentValue: true, quantity: true, imageUrl: true, thumbnailUrl: true } } },
   });
 
   const totalCards = binders.reduce((sum, b) => sum + b.cards.reduce((s, c) => s + c.quantity, 0), 0);
@@ -24,7 +24,7 @@ export default async function BindersPage() {
     name: b.name,
     count: b.cards.reduce((s, c) => s + c.quantity, 0),
     value: formatMoney(b.cards.reduce((s, c) => s + Number(c.currentValue ?? 0) * c.quantity, 0)),
-    swatches: Array.from({ length: 4 }, (_, i) => b.cards[i]?.imageUrl ?? null),
+    swatches: Array.from({ length: 4 }, (_, i) => b.cards[i]?.thumbnailUrl ?? b.cards[i]?.imageUrl ?? null),
     updatedLabel: relativeUpdated(b.updatedAt),
   }));
 

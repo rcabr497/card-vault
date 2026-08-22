@@ -1,3 +1,5 @@
+import { put } from "@vercel/blob";
+
 type IdentifyResult = {
   name: string | null;
   setName: string | null;
@@ -8,10 +10,12 @@ type IdentifyResult = {
   needsReview: boolean;
   gradingCompany: string | null;
   grade: string | null;
+  thumbnailUrl: string | null;
 };
 
 type CardSightField = { key?: string; value?: unknown };
 type CardSightCard = {
+  id?: string;
   name?: string;
   number?: string;
   setName?: string;
@@ -29,7 +33,42 @@ function findFieldValue(card: CardSightCard | undefined, keyPattern: RegExp): st
   return null;
 }
 
-export async function identifyCardImage(imageUrl: string, categoryHint?: string): Promise<IdentifyResult> {
+// Fetches CardSight's own official card art and re-hosts it on our Blob storage
+// (their image endpoint requires our API key, so the browser can't load it
+// directly). A missing/failed thumbnail is never a hard failure — the caller
+// just falls back to the user's own photo for tile display.
+async function fetchAndStoreThumbnail(cardId: string, userId: string, apiKey: string): Promise<string | null> {
+  try {
+    const res = await fetch(`${BASE_URL}/v1/images/cards/${cardId}?format=json`, {
+      headers: { "X-API-Key": apiKey },
+    });
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    const dataUri: string | undefined = data?.data;
+    const match = dataUri?.match(/^data:(.+);base64,(.+)$/);
+    if (!match) return null;
+
+    const [, contentType, base64] = match;
+    const buffer = Buffer.from(base64, "base64");
+    const ext = contentType.split("/")[1] || "jpg";
+
+    if (!process.env.BLOB_READ_WRITE_TOKEN) return null;
+    const blob = await put(`${userId}/thumbnails/${cardId}-${Date.now()}.${ext}`, buffer, {
+      access: "public",
+      contentType,
+    });
+    return blob.url;
+  } catch {
+    return null;
+  }
+}
+
+export async function identifyCardImage(
+  imageUrl: string,
+  categoryHint: string | undefined,
+  userId: string
+): Promise<IdentifyResult> {
   const apiKey = process.env.CARDSIGHT_API_KEY;
   if (!apiKey) {
     throw new Error("CARDSIGHT_API_KEY is not configured.");
@@ -69,6 +108,8 @@ export async function identifyCardImage(imageUrl: string, categoryHint?: string)
   const card: CardSightCard | undefined = detection?.card;
   const confidence: IdentifyResult["confidence"] = detection?.confidence ?? null;
 
+  const thumbnailUrl = card?.id ? await fetchAndStoreThumbnail(card.id, userId, apiKey) : null;
+
   return {
     name: card?.name ?? null,
     setName: card?.setName ?? null,
@@ -79,5 +120,6 @@ export async function identifyCardImage(imageUrl: string, categoryHint?: string)
     needsReview: confidence === "Low" || !card?.name,
     gradingCompany: card?.grading?.company ?? null,
     grade: card?.grading?.grade ?? null,
+    thumbnailUrl,
   };
 }

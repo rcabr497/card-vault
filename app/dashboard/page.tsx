@@ -114,7 +114,7 @@ export default async function DashboardPage() {
             cardNumber: c.cardNumber,
             condition: c.condition,
             currentValue: formatMoney(c.currentValue),
-            imageUrl: c.imageUrl,
+            imageUrl: c.thumbnailUrl ?? c.imageUrl,
             binderId: c.binderId,
             binderName: c.binder.name,
           }))}

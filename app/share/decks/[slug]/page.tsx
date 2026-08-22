@@ -69,9 +69,9 @@ export default async function SharedDeckPage({ params }: { params: { slug: strin
               <div key={dc.cardId} className="tile" style={{ padding: 12, gap: 8, position: "relative" }}>
                 <span className="qty-badge">x{dc.quantity}</span>
                 <div className="card-photo">
-                  {dc.card.imageUrl ? (
+                  {dc.card.thumbnailUrl ?? dc.card.imageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={dc.card.imageUrl} alt={dc.card.name} />
+                    <img src={dc.card.thumbnailUrl ?? dc.card.imageUrl ?? undefined} alt={dc.card.name} />
                   ) : (
                     <span className="card-photo-label">CARD PHOTO</span>
                   )}

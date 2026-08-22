@@ -114,6 +114,7 @@ model Card {
   purchasePrice   Decimal?      @db.Decimal(10, 2)
   currentValue    Decimal?      @db.Decimal(10, 2)
   imageUrl        String?
+  thumbnailUrl    String?
   notes           String?
   metadataJson    String?
   createdAt       DateTime      @default(now())

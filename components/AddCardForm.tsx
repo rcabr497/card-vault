@@ -32,6 +32,7 @@ type Fields = {
   currentValue: string;
   notes: string;
   imageUrl: string;
+  thumbnailUrl: string;
 };
 
 function emptyFields(defaultCategory: string): Fields {
@@ -51,6 +52,7 @@ function emptyFields(defaultCategory: string): Fields {
     currentValue: "",
     notes: "",
     imageUrl: "",
+    thumbnailUrl: "",
   };
 }
 
@@ -92,6 +94,9 @@ export function AddCardForm({ binderId, binderType }: { binderId: string; binder
           rarity: data.rarity ?? "",
           team: data.team ?? "",
           imageUrl: data.imageUrl ?? f.imageUrl,
+          // Manual entry has no separate user photo — the one official image
+          // it finds serves as both the detail-page image and the tile thumbnail.
+          thumbnailUrl: data.imageUrl ?? f.thumbnailUrl,
           currentValue: typeof data.estimatedValue === "number" ? String(data.estimatedValue) : f.currentValue,
         }));
         const detected = CATEGORIES.find((c) => c.value === data.category)?.label ?? data.category;
@@ -157,6 +162,7 @@ export function AddCardForm({ binderId, binderType }: { binderId: string; binder
           rarity: identifyData.rarity ?? f.rarity,
           gradingCompany: identifyData.gradingCompany ?? f.gradingCompany,
           grade: identifyData.grade ?? f.grade,
+          thumbnailUrl: identifyData.thumbnailUrl ?? f.thumbnailUrl,
         }));
         const confidenceLabel = identifyData.confidence ?? "unknown";
         setStatus(`Matched with ${confidenceLabel} confidence — checking price…`);
@@ -184,8 +190,7 @@ export function AddCardForm({ binderId, binderType }: { binderId: string; binder
     }
   }
 
-  async function handleSave(e: React.FormEvent) {
-    e.preventDefault();
+  async function saveCard(): Promise<boolean> {
     setSaving(true);
     setError(null);
     try {
@@ -198,13 +203,34 @@ export function AddCardForm({ binderId, binderType }: { binderId: string; binder
       if (!res.ok) {
         setError(data.error ?? "Something went wrong.");
         setSaving(false);
-        return;
+        return false;
       }
-      router.push(`/binders/${binderId}`);
-      router.refresh();
+      return true;
     } catch {
       setError("Something went wrong. Please try again.");
       setSaving(false);
+      return false;
+    }
+  }
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault();
+    const ok = await saveCard();
+    if (ok) {
+      router.push(`/binders/${binderId}`);
+      router.refresh();
+    }
+  }
+
+  async function handleSaveAndAddNew() {
+    const ok = await saveCard();
+    if (ok) {
+      setFields(emptyFields(binderType));
+      lastLookedUpRef.current = "";
+      setSaving(false);
+      setError(null);
+      setStatus("Card saved — add another below.");
+      router.refresh();
     }
   }
 
@@ -375,6 +401,9 @@ export function AddCardForm({ binderId, binderType }: { binderId: string; binder
         <div style={{ display: "flex", gap: 10 }}>
           <button type="submit" className="btn btn-primary" disabled={saving}>
             {saving ? "Saving…" : "Save Card"}
+          </button>
+          <button type="button" className="btn btn-secondary" onClick={handleSaveAndAddNew} disabled={saving}>
+            {saving ? "Saving…" : "Save + Add New"}
           </button>
         </div>
       </form>

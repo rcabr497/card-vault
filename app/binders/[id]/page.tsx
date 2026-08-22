@@ -98,9 +98,9 @@ export default async function BinderDetailPage({
             {cards.map((c) => (
               <Link key={c.id} href={`/cards/${c.id}`} className="tile" style={{ padding: 12, gap: 8 }}>
                 <div className="card-photo">
-                  {c.imageUrl ? (
+                  {c.thumbnailUrl ?? c.imageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={c.imageUrl} alt={c.name} />
+                    <img src={c.thumbnailUrl ?? c.imageUrl ?? undefined} alt={c.name} />
                   ) : (
                     <span className="card-photo-label">CARD PHOTO</span>
                   )}

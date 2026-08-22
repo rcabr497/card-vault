@@ -46,6 +46,7 @@ export async function POST(req: Request) {
       purchasePrice: body?.purchasePrice ? Number(body.purchasePrice) : null,
       currentValue: body?.currentValue ? Number(body.currentValue) : null,
       imageUrl: body?.imageUrl || null,
+      thumbnailUrl: body?.thumbnailUrl || null,
       notes: body?.notes || null,
       metadataJson: body?.metadataJson ? JSON.stringify(body.metadataJson) : null,
     },

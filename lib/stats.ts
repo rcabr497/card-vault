@@ -37,7 +37,7 @@ export async function getDashboardStats(userId: string) {
     where: { userId },
     orderBy: { createdAt: "desc" },
     take: 4,
-    select: { id: true, name: true, setName: true, currentValue: true, imageUrl: true },
+    select: { id: true, name: true, setName: true, currentValue: true, imageUrl: true, thumbnailUrl: true },
   });
 
   return {
@@ -52,7 +52,7 @@ export async function getDashboardStats(userId: string) {
       name: c.name,
       set: c.setName ?? "—",
       value: formatMoney(Number(c.currentValue ?? 0)),
-      imageUrl: c.imageUrl,
+      imageUrl: c.thumbnailUrl ?? c.imageUrl,
     })),
     trend,
   };
