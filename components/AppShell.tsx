@@ -42,7 +42,13 @@ export function AppShell({
             </Link>
           ))}
         </nav>
-        <Link href="/profile" className="sidebar-user">
+        <Link
+          href="/changelog"
+          style={{ fontSize: 11.5, color: "var(--text-soft)", padding: "0 14px", marginTop: "auto" }}
+        >
+          Changelog
+        </Link>
+        <Link href="/profile" className="sidebar-user" style={{ marginTop: 12 }}>
           <span className="avatar-badge">{initials(user.name)}</span>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div className="sidebar-user-name">{user.name}</div>

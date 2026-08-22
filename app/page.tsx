@@ -181,6 +181,9 @@ export default function LandingPage() {
 
       <footer style={{ padding: "24px 48px 40px", display: "flex", alignItems: "center", gap: 16 }}>
         <span style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 14 }}>Card Vault</span>
+        <Link href="/changelog" style={{ fontSize: 12, color: "var(--text-soft)" }}>
+          Changelog
+        </Link>
         <span style={{ fontSize: 12, color: "var(--text-soft)", marginLeft: "auto" }}>
           © 2026 Card Vault. Built for collectors, by collectors.
         </span>
