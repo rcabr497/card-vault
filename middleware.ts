@@ -16,7 +16,9 @@ export const config = {
     "/decks/:path*",
     "/profile/:path*",
     "/cards/:path*",
+    "/export/:path*",
     "/api/cards/:path*",
     "/api/upload/:path*",
+    "/api/export/:path*",
   ],
 };
