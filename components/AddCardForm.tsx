@@ -33,6 +33,7 @@ type Fields = {
   notes: string;
   imageUrl: string;
   thumbnailUrl: string;
+  cardSightId: string;
 };
 
 function emptyFields(defaultCategory: string): Fields {
@@ -53,6 +54,7 @@ function emptyFields(defaultCategory: string): Fields {
     notes: "",
     imageUrl: "",
     thumbnailUrl: "",
+    cardSightId: "",
   };
 }
 
@@ -163,24 +165,16 @@ export function AddCardForm({ binderId, binderType }: { binderId: string; binder
           gradingCompany: identifyData.gradingCompany ?? f.gradingCompany,
           grade: identifyData.grade ?? f.grade,
           thumbnailUrl: identifyData.thumbnailUrl ?? f.thumbnailUrl,
+          cardSightId: identifyData.cardSightId ?? f.cardSightId,
+          currentValue:
+            typeof identifyData.estimatedValue === "number" ? String(identifyData.estimatedValue) : f.currentValue,
         }));
         const confidenceLabel = identifyData.confidence ?? "unknown";
-        setStatus(`Matched with ${confidenceLabel} confidence — checking price…`);
-
-        // CardSight doesn't include pricing on the free tier; piggyback on the
-        // free name-lookup APIs (which already carry market prices) instead.
-        try {
-          const priceRes = await fetch(`/api/cards/lookup-name?name=${encodeURIComponent(identifyData.name)}`);
-          const priceData = await priceRes.json();
-          if (typeof priceData.estimatedValue === "number") {
-            setFields((f) => ({ ...f, currentValue: String(priceData.estimatedValue) }));
-            setStatus(`Matched with ${confidenceLabel} confidence — est. value $${priceData.estimatedValue.toFixed(2)}`);
-          } else {
-            setStatus(`Matched with ${confidenceLabel} confidence — review and save.`);
-          }
-        } catch {
-          setStatus(`Matched with ${confidenceLabel} confidence — review and save.`);
-        }
+        setStatus(
+          typeof identifyData.estimatedValue === "number"
+            ? `Matched with ${confidenceLabel} confidence — est. value $${identifyData.estimatedValue.toFixed(2)}`
+            : `Matched with ${confidenceLabel} confidence — review and save.`
+        );
       }
     } catch (err) {
       setStatus(null);

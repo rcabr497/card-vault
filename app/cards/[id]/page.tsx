@@ -71,7 +71,7 @@ export default async function CardDetailPage({ params }: { params: { id: string 
             <div style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 24, marginBottom: 12 }}>
               {formatMoney(card.currentValue)}
             </div>
-            <RefreshPrice cardId={card.id} cardName={card.name} />
+            <RefreshPrice cardId={card.id} />
           </div>
 
           {card.notes && (

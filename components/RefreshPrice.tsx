@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export function RefreshPrice({ cardId, cardName }: { cardId: string; cardName: string }) {
+export function RefreshPrice({ cardId }: { cardId: string }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [estimate, setEstimate] = useState<number | null>(null);
@@ -14,13 +14,13 @@ export function RefreshPrice({ cardId, cardName }: { cardId: string; cardName: s
     setStatus("Checking price…");
     setEstimate(null);
     try {
-      const res = await fetch(`/api/cards/lookup-name?name=${encodeURIComponent(cardName)}`);
+      const res = await fetch(`/api/cards/${cardId}/refresh-price`);
       const data = await res.json();
       if (typeof data.estimatedValue === "number") {
         setEstimate(data.estimatedValue);
-        setStatus(null);
+        setStatus(data.source === "cardsight" ? "From CardSight's real sold/asking listings." : null);
       } else {
-        setStatus("No free market price found for this card.");
+        setStatus("No market price found for this card.");
       }
     } catch {
       setStatus("Price check failed — try again.");

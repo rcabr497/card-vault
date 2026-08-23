@@ -115,6 +115,7 @@ model Card {
   currentValue    Decimal?      @db.Decimal(10, 2)
   imageUrl        String?
   thumbnailUrl    String?
+  cardSightId     String?
   notes           String?
   metadataJson    String?
   createdAt       DateTime      @default(now())

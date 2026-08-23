@@ -5,11 +5,19 @@ declare module "next-auth" {
     user: {
       id: string;
     } & DefaultSession["user"];
+    remember?: boolean;
+    loginAt?: number;
+  }
+
+  interface User {
+    remember?: boolean;
   }
 }
 
-declare module "next-auth/jwt" {
+declare module "@auth/core/jwt" {
   interface JWT {
     id?: string;
+    remember?: boolean;
+    loginAt?: number;
   }
 }
