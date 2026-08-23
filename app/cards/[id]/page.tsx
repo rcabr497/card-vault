@@ -40,6 +40,9 @@ export default async function CardDetailPage({ params }: { params: { id: string 
           </Link>
           <h1 className="topbar-title">{card.name}</h1>
         </div>
+        <Link href={`/cards/${card.id}/edit`} className="btn btn-secondary" style={{ marginLeft: "auto" }}>
+          Edit
+        </Link>
       </div>
 
       <div className="page-pad" style={{ display: "flex", gap: 32, alignItems: "flex-start", flexWrap: "wrap" }}>
