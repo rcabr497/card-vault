@@ -185,6 +185,7 @@ select.input {
   box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
+  min-width: 0;
   color: var(--text);
   transition: box-shadow 0.15s;
 }
