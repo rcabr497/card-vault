@@ -290,11 +290,26 @@ select.input {
   gap: 32px;
   box-shadow: var(--shadow-sm);
 }
+.sidebar-header {
+  display: flex;
+  align-items: center;
+}
 .sidebar-brand {
   display: flex;
   align-items: center;
   gap: 10px;
   color: var(--text);
+}
+.sidebar-menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  padding: 6px;
+}
+.sidebar-collapsible {
+  display: contents;
 }
 .brand-mark {
   width: 30px;
@@ -486,20 +501,35 @@ select.input {
   }
   .sidebar {
     width: 100%;
-    flex-direction: row;
-    align-items: center;
-    overflow-x: auto;
+    flex-direction: column;
+    align-items: stretch;
     padding: 14px 16px;
-    gap: 16px;
+    gap: 0;
     box-shadow: none;
     border-bottom: 1px solid var(--divider);
   }
-  .sidebar-nav {
-    flex-direction: row;
-    gap: 6px;
+  .sidebar-header {
+    justify-content: space-between;
+    width: 100%;
   }
-  .sidebar-user {
-    display: none;
+  .sidebar-menu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .sidebar-collapsible {
+    display: block;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease;
+  }
+  .sidebar-collapsible.is-open {
+    max-height: 420px;
+  }
+  .sidebar-nav {
+    flex-direction: column;
+    gap: 4px;
+    padding-top: 16px;
   }
   .topbar {
     flex-wrap: wrap;

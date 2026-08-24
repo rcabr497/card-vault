@@ -1,5 +1,8 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
-import { IconDashboard, IconBinder, IconDeck } from "./icons";
+import { IconDashboard, IconBinder, IconDeck, IconMenu, IconClose } from "./icons";
 
 type NavKey = "dashboard" | "binders" | "decks";
 
@@ -23,38 +26,54 @@ export function AppShell({
   user: { name: string; plan: string };
   children: React.ReactNode;
 }) {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   return (
     <div className="shell">
       <aside className="sidebar">
-        <Link href="/dashboard" className="sidebar-brand">
-          <span className="brand-mark" />
-          <span className="brand-wordmark">Card Vault</span>
-        </Link>
-        <nav className="sidebar-nav">
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.key}
-              href={item.href}
-              className={`sidebar-nav-item${item.key === active ? " active" : ""}`}
-            >
-              {item.icon}
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <Link
-          href="/changelog"
-          style={{ fontSize: 11.5, color: "var(--text-soft)", padding: "0 14px", marginTop: "auto" }}
-        >
-          Changelog
-        </Link>
-        <Link href="/profile" className="sidebar-user" style={{ marginTop: 12 }}>
-          <span className="avatar-badge">{initials(user.name)}</span>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div className="sidebar-user-name">{user.name}</div>
-            <div className="sidebar-user-plan">{user.plan === "free" ? "Free plan" : user.plan}</div>
-          </div>
-        </Link>
+        <div className="sidebar-header">
+          <Link href="/dashboard" className="sidebar-brand">
+            <span className="brand-mark" />
+            <span className="brand-wordmark">Card Vault</span>
+          </Link>
+          <button
+            type="button"
+            className="sidebar-menu-toggle"
+            onClick={() => setMobileOpen((o) => !o)}
+            aria-expanded={mobileOpen}
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+          >
+            {mobileOpen ? <IconClose /> : <IconMenu />}
+          </button>
+        </div>
+
+        <div className={`sidebar-collapsible${mobileOpen ? " is-open" : ""}`}>
+          <nav className="sidebar-nav">
+            {NAV_ITEMS.map((item) => (
+              <Link
+                key={item.key}
+                href={item.href}
+                className={`sidebar-nav-item${item.key === active ? " active" : ""}`}
+              >
+                {item.icon}
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+          <Link
+            href="/changelog"
+            style={{ fontSize: 11.5, color: "var(--text-soft)", padding: "0 14px", marginTop: "auto" }}
+          >
+            Changelog
+          </Link>
+          <Link href="/profile" className="sidebar-user" style={{ marginTop: 12 }}>
+            <span className="avatar-badge">{initials(user.name)}</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="sidebar-user-name">{user.name}</div>
+              <div className="sidebar-user-plan">{user.plan === "free" ? "Free plan" : user.plan}</div>
+            </div>
+          </Link>
+        </div>
       </aside>
       <div className="shell-main">{children}</div>
     </div>

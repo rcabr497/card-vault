@@ -2,6 +2,29 @@ import Link from "next/link";
 
 const ENTRIES: { date: string; title: string; items: string[] }[] = [
   {
+    date: "August 23, 2026",
+    title: "Home page and login polish",
+    items: [
+      "Visiting the sign up / log in page while already signed in now takes you straight to your dashboard instead of showing the form again.",
+      "The public homepage's \"Your Vault\" preview now shows real (anonymized) card data and thumbnails from across the collection instead of a mockup.",
+    ],
+  },
+  {
+    date: "August 23, 2026",
+    title: "Full card editing",
+    items: [
+      "Cards can now be edited after saving — name, set, condition, quantity, notes, and every other field — from a new Edit button on the card detail page, not just the price.",
+    ],
+  },
+  {
+    date: "August 23, 2026",
+    title: "CardSight pricing and Remember Me",
+    items: [
+      "Cards identified by photo or camera now get their estimated value straight from CardSight's own real eBay sold/asking listings, and the \"Refresh price\" action prefers the same source when available.",
+      "Added a \"Remember me\" checkbox at login: checked keeps you signed in for 30 days, unchecked signs you out after a day.",
+    ],
+  },
+  {
     date: "August 22, 2026",
     title: "CSV export wizard",
     items: [
