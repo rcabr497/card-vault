@@ -14,12 +14,12 @@ const TILE_COLORS = [
 ];
 
 const FALLBACK_CARDS = [
-  { name: "M. Torres", team: "Riverside Larks", teamColor: "oklch(45% 0.14 255)", value: "$42.00", cond: "NM" },
-  { name: "D. Ferris", team: "Portside Anchors", teamColor: "oklch(48% 0.16 25)", value: "$8.50", cond: "LP" },
-  { name: "J. Alden", team: "Cascade Timbers", teamColor: "oklch(45% 0.13 145)", value: "$120.00", cond: "MINT" },
-  { name: "R. Cole", team: "Prairie Wolves", teamColor: "oklch(42% 0.02 40)", value: "$3.25", cond: "NM" },
-  { name: "T. Nakamura", team: "Harbor Kings", teamColor: "oklch(50% 0.15 300)", value: "$16.00", cond: "EX" },
-  { name: "S. Ibarra", team: "Summit Comets", teamColor: "oklch(55% 0.17 60)", value: "$64.00", cond: "NM" },
+  { name: "M. Torres", team: "Riverside Larks", teamColor: "oklch(45% 0.14 255)", value: "$42.00", cond: "NM", imageUrl: null },
+  { name: "D. Ferris", team: "Portside Anchors", teamColor: "oklch(48% 0.16 25)", value: "$8.50", cond: "LP", imageUrl: null },
+  { name: "J. Alden", team: "Cascade Timbers", teamColor: "oklch(45% 0.13 145)", value: "$120.00", cond: "MINT", imageUrl: null },
+  { name: "R. Cole", team: "Prairie Wolves", teamColor: "oklch(42% 0.02 40)", value: "$3.25", cond: "NM", imageUrl: null },
+  { name: "T. Nakamura", team: "Harbor Kings", teamColor: "oklch(50% 0.15 300)", value: "$16.00", cond: "EX", imageUrl: null },
+  { name: "S. Ibarra", team: "Summit Comets", teamColor: "oklch(55% 0.17 60)", value: "$64.00", cond: "NM", imageUrl: null },
 ];
 const FALLBACK_CARDS_LOGGED = "1,204";
 const FALLBACK_TOTAL_VALUE = "$18,340";
@@ -60,6 +60,7 @@ export default async function LandingPage() {
         teamColor: TILE_COLORS[i % TILE_COLORS.length],
         value: c.value,
         cond: c.condition,
+        imageUrl: c.imageUrl,
       }))
     : FALLBACK_CARDS;
   const cardsLogged = showcase ? showcase.cardsLogged.toLocaleString() : FALLBACK_CARDS_LOGGED;
@@ -131,7 +132,12 @@ export default async function LandingPage() {
               >
                 <div style={{ height: 6, background: c.teamColor }} />
                 <div className="card-photo" style={{ aspectRatio: "5/7" }}>
-                  <span className="card-photo-label">CARD PHOTO</span>
+                  {c.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={c.imageUrl} alt={c.name} />
+                  ) : (
+                    <span className="card-photo-label">CARD PHOTO</span>
+                  )}
                 </div>
                 <div style={{ padding: "8px 4px 2px", textAlign: "center" }}>
                   <div style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 10.5 }}>{c.name}</div>

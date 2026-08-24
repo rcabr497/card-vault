@@ -70,7 +70,13 @@ const CATEGORY_LABELS: Record<string, string> = {
   other: "Other",
 };
 
-export type PublicShowcaseCard = { name: string; label: string; value: string; condition: string };
+export type PublicShowcaseCard = {
+  name: string;
+  label: string;
+  value: string;
+  condition: string;
+  imageUrl: string | null;
+};
 
 export async function getPublicShowcase(): Promise<{
   cards: PublicShowcaseCard[];
@@ -85,7 +91,16 @@ export async function getPublicShowcase(): Promise<{
     prisma.card.findMany({
       orderBy: { createdAt: "desc" },
       take: 6,
-      select: { name: true, category: true, setName: true, team: true, condition: true, currentValue: true },
+      select: {
+        name: true,
+        category: true,
+        setName: true,
+        team: true,
+        condition: true,
+        currentValue: true,
+        thumbnailUrl: true,
+        imageUrl: true,
+      },
     }),
   ]);
 
@@ -97,6 +112,7 @@ export async function getPublicShowcase(): Promise<{
       label: c.team ?? c.setName ?? CATEGORY_LABELS[c.category] ?? "Other",
       value: formatMoney(c.currentValue),
       condition: c.condition,
+      imageUrl: c.thumbnailUrl ?? c.imageUrl ?? null,
     })),
   };
 }
