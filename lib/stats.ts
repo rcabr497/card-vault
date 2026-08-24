@@ -62,3 +62,41 @@ export function formatMoney(value: number | Prisma.Decimal | null | undefined) {
   const n = Number(value ?? 0);
   return n.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
+
+const CATEGORY_LABELS: Record<string, string> = {
+  pokemon: "Pokémon",
+  mtg: "Magic: The Gathering",
+  sports: "Sports",
+  other: "Other",
+};
+
+export type PublicShowcaseCard = { name: string; label: string; value: string; condition: string };
+
+export async function getPublicShowcase(): Promise<{
+  cards: PublicShowcaseCard[];
+  cardsLogged: number;
+  totalValue: string;
+} | null> {
+  const cardsLogged = await prisma.card.count();
+  if (cardsLogged < 6) return null;
+
+  const [{ _sum }, recent] = await Promise.all([
+    prisma.card.aggregate({ _sum: { currentValue: true } }),
+    prisma.card.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 6,
+      select: { name: true, category: true, setName: true, team: true, condition: true, currentValue: true },
+    }),
+  ]);
+
+  return {
+    cardsLogged,
+    totalValue: formatMoney(_sum.currentValue),
+    cards: recent.map((c) => ({
+      name: c.name,
+      label: c.team ?? c.setName ?? CATEGORY_LABELS[c.category] ?? "Other",
+      value: formatMoney(c.currentValue),
+      condition: c.condition,
+    })),
+  };
+}

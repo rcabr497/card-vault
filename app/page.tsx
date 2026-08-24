@@ -1,7 +1,19 @@
 import Link from "next/link";
 import { IconLayers, IconTrendUp, IconScan, IconBarChart, IconArrowRight } from "@/components/icons";
+import { getPublicShowcase } from "@/lib/stats";
 
-const VAULT_CARDS = [
+export const revalidate = 300;
+
+const TILE_COLORS = [
+  "oklch(45% 0.14 255)",
+  "oklch(48% 0.16 25)",
+  "oklch(45% 0.13 145)",
+  "oklch(42% 0.02 40)",
+  "oklch(50% 0.15 300)",
+  "oklch(55% 0.17 60)",
+];
+
+const FALLBACK_CARDS = [
   { name: "M. Torres", team: "Riverside Larks", teamColor: "oklch(45% 0.14 255)", value: "$42.00", cond: "NM" },
   { name: "D. Ferris", team: "Portside Anchors", teamColor: "oklch(48% 0.16 25)", value: "$8.50", cond: "LP" },
   { name: "J. Alden", team: "Cascade Timbers", teamColor: "oklch(45% 0.13 145)", value: "$120.00", cond: "MINT" },
@@ -9,6 +21,8 @@ const VAULT_CARDS = [
   { name: "T. Nakamura", team: "Harbor Kings", teamColor: "oklch(50% 0.15 300)", value: "$16.00", cond: "EX" },
   { name: "S. Ibarra", team: "Summit Comets", teamColor: "oklch(55% 0.17 60)", value: "$64.00", cond: "NM" },
 ];
+const FALLBACK_CARDS_LOGGED = "1,204";
+const FALLBACK_TOTAL_VALUE = "$18,340";
 
 const FEATURES = [
   {
@@ -37,7 +51,20 @@ const FEATURES = [
   },
 ];
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const showcase = await getPublicShowcase();
+  const vaultCards = showcase
+    ? showcase.cards.map((c, i) => ({
+        name: c.name,
+        team: c.label,
+        teamColor: TILE_COLORS[i % TILE_COLORS.length],
+        value: c.value,
+        cond: c.condition,
+      }))
+    : FALLBACK_CARDS;
+  const cardsLogged = showcase ? showcase.cardsLogged.toLocaleString() : FALLBACK_CARDS_LOGGED;
+  const totalValue = showcase ? showcase.totalValue : FALLBACK_TOTAL_VALUE;
+
   return (
     <div>
       <nav className="nav">
@@ -92,7 +119,7 @@ export default function LandingPage() {
             <span style={{ fontSize: 11.5, color: "var(--text-soft)" }}>Updated just now</span>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 16 }}>
-            {VAULT_CARDS.map((c) => (
+            {vaultCards.map((c) => (
               <div
                 key={c.name}
                 style={{
@@ -127,10 +154,10 @@ export default function LandingPage() {
             }}
           >
             <span>
-              <strong style={{ fontFamily: "var(--font-heading)" }}>1,204</strong> cards logged
+              <strong style={{ fontFamily: "var(--font-heading)" }}>{cardsLogged}</strong> cards logged
             </span>
             <span>
-              <strong style={{ fontFamily: "var(--font-heading)", color: "var(--accent-ink)" }}>$18,340</strong>{" "}
+              <strong style={{ fontFamily: "var(--font-heading)", color: "var(--accent-ink)" }}>{totalValue}</strong>{" "}
               total value
             </span>
           </div>
