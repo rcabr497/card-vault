@@ -87,6 +87,8 @@ model Binder {
   userId    String
   name      String
   type      BinderType
+  isShared  Boolean    @default(false)
+  shareSlug String?    @unique
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 

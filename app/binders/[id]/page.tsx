@@ -7,6 +7,7 @@ import { AppShell } from "@/components/AppShell";
 import { IconPlus, IconChevronLeft, IconChevronRight } from "@/components/icons";
 import { BinderSearchInput } from "@/components/BinderSearchInput";
 import { DeleteBinderButton } from "@/components/DeleteBinderButton";
+import { BinderShareToggle } from "@/components/BinderShareToggle";
 import { CardCondition } from "@prisma/client";
 
 const PAGE_SIZE = 15;
@@ -82,6 +83,7 @@ export default async function BinderDetailPage({
             <IconPlus />
             Add Card
           </Link>
+          <BinderShareToggle binderId={binder.id} initialShared={binder.isShared} initialSlug={binder.shareSlug} />
           <DeleteBinderButton binderId={binder.id} />
         </div>
       </div>

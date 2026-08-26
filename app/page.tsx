@@ -76,6 +76,7 @@ export default async function LandingPage() {
         <div className="nav-links">
           <a href="#features">Features</a>
           <a href="#vault">The vault</a>
+          <Link href="/showcase">Showcase</Link>
         </div>
         <Link href="/signup" className="btn btn-primary">
           Sign Up
@@ -216,6 +217,9 @@ export default async function LandingPage() {
         <span style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 14 }}>Card Vault</span>
         <Link href="/changelog" style={{ fontSize: 12, color: "var(--text-soft)" }}>
           Changelog
+        </Link>
+        <Link href="/showcase" style={{ fontSize: 12, color: "var(--text-soft)" }}>
+          Showcase
         </Link>
         <span style={{ fontSize: 12, color: "var(--text-soft)", marginLeft: "auto" }}>
           © 2026 Card Vault. Built for collectors, by collectors.

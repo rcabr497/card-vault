@@ -3,6 +3,14 @@ import Link from "next/link";
 const ENTRIES: { date: string; title: string; items: string[] }[] = [
   {
     date: "August 26, 2026",
+    title: "Public Showcase for decks and binders",
+    items: [
+      "Binders can now be made public with a Share toggle, the same way decks already could — sharing a binder gives it its own public page with no sign-in required.",
+      "New Showcase page on the public site listing every deck and binder the community has made public, each linking to its shared page. Nothing on it reveals who owns a deck or binder.",
+    ],
+  },
+  {
+    date: "August 26, 2026",
     title: "Add a card straight from the Dashboard",
     items: [
       "The Dashboard's Add Card button now adds straight to your collection, with an optional Binder picker on the form — no more being forced to pick a binder first.",
