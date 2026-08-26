@@ -56,7 +56,13 @@ export function BinderGridClient({ binders }: { binders: BinderTile[] }) {
                     >
                       {imageUrl && (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={imageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        <img
+                          src={imageUrl}
+                          alt=""
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          loading="lazy"
+                          decoding="async"
+                        />
                       )}
                     </div>
                   );

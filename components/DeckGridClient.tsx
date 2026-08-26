@@ -42,7 +42,13 @@ export function DeckGridClient({ decks }: { decks: DeckTile[] }) {
               <div className="card-photo" style={{ aspectRatio: "2.5/1.4", borderRadius: 0 }}>
                 {d.featuredImageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={d.featuredImageUrl} alt={d.name} style={{ objectPosition: "top" }} />
+                  <img
+                    src={d.featuredImageUrl}
+                    alt={d.name}
+                    style={{ objectPosition: "top" }}
+                    loading="lazy"
+                    decoding="async"
+                  />
                 ) : (
                   <span className="card-photo-label">DECK COVER</span>
                 )}

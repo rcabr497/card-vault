@@ -57,7 +57,12 @@ export default async function SharedBinderPage({ params }: { params: { slug: str
                 <div className="card-photo">
                   {bc.card.thumbnailUrl ?? bc.card.imageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={bc.card.thumbnailUrl ?? bc.card.imageUrl ?? undefined} alt={bc.card.name} />
+                    <img
+                      src={bc.card.thumbnailUrl ?? bc.card.imageUrl ?? undefined}
+                      alt={bc.card.name}
+                      loading="lazy"
+                      decoding="async"
+                    />
                   ) : (
                     <span className="card-photo-label">CARD PHOTO</span>
                   )}

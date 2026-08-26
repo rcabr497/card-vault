@@ -77,7 +77,12 @@ export default async function DeckDetailPage({
                   <div className="card-photo">
                     {dc.card.thumbnailUrl ?? dc.card.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={dc.card.thumbnailUrl ?? dc.card.imageUrl ?? undefined} alt={dc.card.name} />
+                      <img
+                        src={dc.card.thumbnailUrl ?? dc.card.imageUrl ?? undefined}
+                        alt={dc.card.name}
+                        loading="lazy"
+                        decoding="async"
+                      />
                     ) : (
                       <span className="card-photo-label">CARD PHOTO</span>
                     )}

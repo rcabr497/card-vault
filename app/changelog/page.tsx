@@ -3,6 +3,14 @@ import Link from "next/link";
 const ENTRIES: { date: string; title: string; items: string[] }[] = [
   {
     date: "August 26, 2026",
+    title: "Pagination on the Dashboard, and faster image loading",
+    items: [
+      "The Dashboard's \"All cards\" section loaded your entire collection at once, images and all. It's now paginated at 12 per page (a 3x4 grid), with search and page links working the same way binders already do.",
+      "Card and deck thumbnails across the site now load lazily, so a page only fetches the images actually in view instead of every image on the page at once.",
+    ],
+  },
+  {
+    date: "August 26, 2026",
     title: "Fixed the Add Card dialog on mobile",
     items: [
       "On narrow screens, the search box and \"selected\" count in the Add Card dialog (deck view and new deck form) could visually collide instead of wrapping to their own line.",

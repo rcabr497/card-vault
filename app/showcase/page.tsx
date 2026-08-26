@@ -93,7 +93,13 @@ export default async function ShowcasePage() {
                 <div className="card-photo" style={{ aspectRatio: "2.5/1.4", borderRadius: 0 }}>
                   {d.featuredImageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={d.featuredImageUrl} alt={d.name} style={{ objectPosition: "top" }} />
+                    <img
+                      src={d.featuredImageUrl}
+                      alt={d.name}
+                      style={{ objectPosition: "top" }}
+                      loading="lazy"
+                      decoding="async"
+                    />
                   ) : (
                     <span className="card-photo-label">DECK COVER</span>
                   )}
@@ -141,7 +147,13 @@ export default async function ShowcasePage() {
                     >
                       {imageUrl && (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={imageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        <img
+                          src={imageUrl}
+                          alt=""
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          loading="lazy"
+                          decoding="async"
+                        />
                       )}
                     </div>
                   ))}

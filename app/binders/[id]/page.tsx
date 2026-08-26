@@ -107,7 +107,12 @@ export default async function BinderDetailPage({
                 <div className="card-photo">
                   {c.thumbnailUrl ?? c.imageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={c.thumbnailUrl ?? c.imageUrl ?? undefined} alt={c.name} />
+                    <img
+                      src={c.thumbnailUrl ?? c.imageUrl ?? undefined}
+                      alt={c.name}
+                      loading="lazy"
+                      decoding="async"
+                    />
                   ) : (
                     <span className="card-photo-label">CARD PHOTO</span>
                   )}

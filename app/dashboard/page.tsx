@@ -6,19 +6,33 @@ import { AppShell } from "@/components/AppShell";
 import { CardGridOrList } from "@/components/CardGridOrList";
 import { IconPlus } from "@/components/icons";
 
-export default async function DashboardPage() {
+const PAGE_SIZE = 12;
+
+export default async function DashboardPage({ searchParams }: { searchParams: { q?: string; page?: string } }) {
   const session = await auth();
   const userId = session!.user.id;
 
-  const [user, { stats, recent, trend }, allCards] = await Promise.all([
+  const q = searchParams.q ?? "";
+  const page = Math.max(1, Number(searchParams.page ?? "1") || 1);
+  const where = {
+    userId,
+    ...(q ? { name: { contains: q, mode: "insensitive" as const } } : {}),
+  };
+
+  const [user, { stats, recent, trend }, totalCount, pageCards] = await Promise.all([
     prisma.user.findUniqueOrThrow({ where: { id: userId } }),
     getDashboardStats(userId),
+    prisma.card.count({ where }),
     prisma.card.findMany({
-      where: { userId },
+      where,
       orderBy: { createdAt: "desc" },
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE,
       include: { binderCards: { include: { binder: { select: { name: true } } } } },
     }),
   ]);
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   return (
     <AppShell active="dashboard" user={{ name: user.name ?? user.email, plan: user.plan }}>
@@ -66,7 +80,7 @@ export default async function DashboardPage() {
                   <div className="card-photo">
                     {c.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={c.imageUrl} alt={c.name} />
+                      <img src={c.imageUrl} alt={c.name} loading="lazy" decoding="async" />
                     ) : (
                       <span className="card-photo-label">CARD PHOTO</span>
                     )}
@@ -110,7 +124,7 @@ export default async function DashboardPage() {
         </div>
 
         <CardGridOrList
-          cards={allCards.map((c) => ({
+          cards={pageCards.map((c) => ({
             id: c.id,
             name: c.name,
             setName: c.setName,
@@ -120,6 +134,10 @@ export default async function DashboardPage() {
             imageUrl: c.thumbnailUrl ?? c.imageUrl,
             binderName: c.binderCards.map((bc) => bc.binder.name).join("; ") || "—",
           }))}
+          q={q}
+          page={page}
+          totalPages={totalPages}
+          basePath="/dashboard"
         />
       </div>
     </AppShell>

@@ -135,7 +135,7 @@ export default async function LandingPage() {
                 <div className="card-photo" style={{ aspectRatio: "5/7" }}>
                   {c.imageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={c.imageUrl} alt={c.name} />
+                    <img src={c.imageUrl} alt={c.name} loading="lazy" decoding="async" />
                   ) : (
                     <span className="card-photo-label">CARD PHOTO</span>
                   )}

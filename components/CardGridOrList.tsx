@@ -1,7 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { IconChevronLeft, IconChevronRight } from "./icons";
 
 export type CardListItem = {
   id: string;
@@ -14,15 +16,41 @@ export type CardListItem = {
   binderName: string;
 };
 
-export function CardGridOrList({ cards }: { cards: CardListItem[] }) {
+export function CardGridOrList({
+  cards,
+  q,
+  page,
+  totalPages,
+  basePath,
+}: {
+  cards: CardListItem[];
+  q: string;
+  page: number;
+  totalPages: number;
+  basePath: string;
+}) {
+  const router = useRouter();
   const [view, setView] = useState<"grid" | "list">("grid");
-  const [q, setQ] = useState("");
+  const [value, setValue] = useState(q);
+  const timer = useRef<ReturnType<typeof setTimeout>>();
 
-  const filtered = useMemo(() => {
-    const term = q.trim().toLowerCase();
-    if (!term) return cards;
-    return cards.filter((c) => c.name.toLowerCase().includes(term));
-  }, [cards, q]);
+  useEffect(() => {
+    if (value === q) return;
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      const params = new URLSearchParams({ page: "1" });
+      if (value.trim()) params.set("q", value.trim());
+      router.push(`${basePath}?${params.toString()}`);
+    }, 300);
+    return () => clearTimeout(timer.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
+  const linkWith = (overrides: Record<string, string>) => {
+    const params = new URLSearchParams({ page: String(page), ...overrides });
+    if (!params.get("q")) params.delete("q");
+    return `${basePath}?${params.toString()}`;
+  };
 
   return (
     <div>
@@ -33,8 +61,8 @@ export function CardGridOrList({ cards }: { cards: CardListItem[] }) {
             type="search"
             className="input"
             placeholder="Search your collection…"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
             style={{ width: 220 }}
           />
           <div style={{ display: "flex", gap: 6 }}>
@@ -57,17 +85,17 @@ export function CardGridOrList({ cards }: { cards: CardListItem[] }) {
       </div>
 
       {cards.length === 0 ? (
-        <p style={{ fontSize: 13.5, color: "var(--text-soft)" }}>No cards logged yet.</p>
-      ) : filtered.length === 0 ? (
-        <p style={{ fontSize: 13.5, color: "var(--text-soft)" }}>No cards match &quot;{q}&quot;.</p>
+        <p style={{ fontSize: 13.5, color: "var(--text-soft)" }}>
+          {q ? <>No cards match &quot;{q}&quot;.</> : "No cards logged yet."}
+        </p>
       ) : view === "grid" ? (
-        <div className="grid grid-5">
-          {filtered.map((c) => (
+        <div className="grid grid-3">
+          {cards.map((c) => (
             <Link key={c.id} href={`/cards/${c.id}`} className="tile" style={{ padding: 12, gap: 8 }}>
               <div className="card-photo">
                 {c.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={c.imageUrl} alt={c.name} />
+                  <img src={c.imageUrl} alt={c.name} loading="lazy" decoding="async" />
                 ) : (
                   <span className="card-photo-label">CARD PHOTO</span>
                 )}
@@ -85,7 +113,7 @@ export function CardGridOrList({ cards }: { cards: CardListItem[] }) {
         </div>
       ) : (
         <div className="surface-card" style={{ overflow: "hidden" }}>
-          {filtered.map((c, i) => (
+          {cards.map((c, i) => (
             <Link
               key={c.id}
               href={`/cards/${c.id}`}
@@ -101,7 +129,7 @@ export function CardGridOrList({ cards }: { cards: CardListItem[] }) {
               <div className="card-photo" style={{ width: 32, aspectRatio: "5/7", flex: "none" }}>
                 {c.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={c.imageUrl} alt={c.name} />
+                  <img src={c.imageUrl} alt={c.name} loading="lazy" decoding="async" />
                 ) : null}
               </div>
               <div style={{ flex: 1, minWidth: 0, fontSize: 13, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
@@ -114,6 +142,27 @@ export function CardGridOrList({ cards }: { cards: CardListItem[] }) {
               </span>
             </Link>
           ))}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="pager">
+          <span style={{ fontSize: 12.5, color: "var(--text-soft)" }}>
+            Page {page} of {totalPages}
+          </span>
+          <div className="pager-controls">
+            <Link href={linkWith({ page: String(Math.max(1, page - 1)) })} className="pager-btn">
+              <IconChevronLeft />
+            </Link>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+              <Link key={p} href={linkWith({ page: String(p) })} className={`pager-btn${p === page ? " active" : ""}`}>
+                {p}
+              </Link>
+            ))}
+            <Link href={linkWith({ page: String(Math.min(totalPages, page + 1)) })} className="pager-btn">
+              <IconChevronRight />
+            </Link>
+          </div>
         </div>
       )}
     </div>

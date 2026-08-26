@@ -52,7 +52,7 @@ export default async function CardDetailPage({ params }: { params: { id: string 
         <div className="card-photo" style={{ width: 220, aspectRatio: "5/7", flex: "none" }}>
           {card.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={card.imageUrl} alt={card.name} />
+            <img src={card.imageUrl} alt={card.name} loading="lazy" decoding="async" />
           ) : (
             <span className="card-photo-label">CARD PHOTO</span>
           )}

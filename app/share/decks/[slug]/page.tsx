@@ -35,7 +35,7 @@ export default async function SharedDeckPage({ params }: { params: { slug: strin
           {deck.featuredImageUrl && (
             <div className="card-photo" style={{ width: 200, aspectRatio: "2.5/3.5", flex: "none" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={deck.featuredImageUrl} alt={deck.name} />
+              <img src={deck.featuredImageUrl} alt={deck.name} loading="lazy" decoding="async" />
             </div>
           )}
           <div>
@@ -67,7 +67,12 @@ export default async function SharedDeckPage({ params }: { params: { slug: strin
                 <div className="card-photo">
                   {dc.card.thumbnailUrl ?? dc.card.imageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={dc.card.thumbnailUrl ?? dc.card.imageUrl ?? undefined} alt={dc.card.name} />
+                    <img
+                      src={dc.card.thumbnailUrl ?? dc.card.imageUrl ?? undefined}
+                      alt={dc.card.name}
+                      loading="lazy"
+                      decoding="async"
+                    />
                   ) : (
                     <span className="card-photo-label">CARD PHOTO</span>
                   )}
