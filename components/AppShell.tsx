@@ -2,14 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { IconDashboard, IconBinder, IconDeck, IconMenu, IconClose } from "./icons";
+import { IconDashboard, IconBinder, IconDeck, IconShare, IconMenu, IconClose } from "./icons";
 
-type NavKey = "dashboard" | "binders" | "decks";
+type NavKey = "dashboard" | "binders" | "decks" | "showcase";
 
 const NAV_ITEMS: { key: NavKey; href: string; label: string; icon: React.ReactNode }[] = [
   { key: "dashboard", href: "/dashboard", label: "Dashboard", icon: <IconDashboard /> },
   { key: "binders", href: "/binders", label: "Binder", icon: <IconBinder /> },
   { key: "decks", href: "/decks", label: "Decks", icon: <IconDeck /> },
+  { key: "showcase", href: "/showcase", label: "Showcase", icon: <IconShare /> },
 ];
 
 function initials(name: string) {
