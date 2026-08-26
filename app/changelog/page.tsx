@@ -3,6 +3,14 @@ import Link from "next/link";
 const ENTRIES: { date: string; title: string; items: string[] }[] = [
   {
     date: "August 26, 2026",
+    title: "Deck type breakdown, fixed",
+    items: [
+      "A deck's \"Type breakdown\" now actually reflects type: Magic decks break down by mana color, Pokémon decks by elemental type.",
+      "Sports decks no longer show a \"Type breakdown\" at all, since sports cards don't have a type.",
+    ],
+  },
+  {
+    date: "August 26, 2026",
     title: "Public Showcase for decks and binders",
     items: [
       "Binders can now be made public with a Share toggle, the same way decks already could — sharing a binder gives it its own public page with no sign-in required.",

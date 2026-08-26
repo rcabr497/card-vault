@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatMoney } from "@/lib/stats";
+import { computeTypeBreakdown } from "@/lib/deckTypeBreakdown";
 
 export default async function SharedDeckPage({ params }: { params: { slug: string } }) {
   const deck = await prisma.deck.findFirst({
@@ -13,15 +14,7 @@ export default async function SharedDeckPage({ params }: { params: { slug: strin
   const totalCount = deck.deckCards.reduce((s, dc) => s + dc.quantity, 0);
   const totalValue = deck.deckCards.reduce((s, dc) => s + Number(dc.card.currentValue ?? 0) * dc.quantity, 0);
 
-  const breakdown = new Map<string, number>();
-  for (const dc of deck.deckCards) {
-    const key = dc.card.team || "Other";
-    breakdown.set(key, (breakdown.get(key) ?? 0) + dc.quantity);
-  }
-  const typeBreakdown = Array.from(breakdown.entries())
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 6)
-    .map(([label, count]) => ({ label, count, pct: totalCount ? Math.round((count / totalCount) * 100) : 0 }));
+  const typeBreakdown = computeTypeBreakdown(deck.deckCards);
 
   return (
     <div>
@@ -63,7 +56,10 @@ export default async function SharedDeckPage({ params }: { params: { slug: strin
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 260px", gap: 32 }} className="deck-cols">
+        <div
+          style={{ display: "grid", gridTemplateColumns: typeBreakdown.length > 0 ? "1fr 260px" : "1fr", gap: 32 }}
+          className="deck-cols"
+        >
           <div className="grid grid-5">
             {deck.deckCards.map((dc) => (
               <div key={dc.cardId} className="tile" style={{ padding: 12, gap: 8, position: "relative" }}>
@@ -84,24 +80,26 @@ export default async function SharedDeckPage({ params }: { params: { slug: strin
             ))}
           </div>
 
-          <div>
-            <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 15, margin: "0 0 16px" }}>
-              Type breakdown
-            </h2>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {typeBreakdown.map((t) => (
-                <div key={t.label}>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 5 }}>
-                    <span>{t.label}</span>
-                    <span style={{ color: "var(--text-soft)" }}>{t.count}</span>
+          {typeBreakdown.length > 0 && (
+            <div>
+              <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 15, margin: "0 0 16px" }}>
+                Type breakdown
+              </h2>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {typeBreakdown.map((t) => (
+                  <div key={t.label}>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 5 }}>
+                      <span>{t.label}</span>
+                      <span style={{ color: "var(--text-soft)" }}>{t.count}</span>
+                    </div>
+                    <div style={{ height: 7, background: "var(--surface)", borderRadius: 999 }}>
+                      <div style={{ height: "100%", background: "var(--accent)", borderRadius: 999, width: `${t.pct}%` }} />
+                    </div>
                   </div>
-                  <div style={{ height: 7, background: "var(--surface)", borderRadius: 999 }}>
-                    <div style={{ height: "100%", background: "var(--accent)", borderRadius: 999, width: `${t.pct}%` }} />
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
