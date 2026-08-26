@@ -39,15 +39,15 @@ export function DeckCardPicker({
 
   return (
     <div className="surface-card" style={{ padding: 16 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+      <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 8, marginBottom: 12 }}>
         <input
           className="input"
           placeholder="Search your cards…"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          style={{ maxWidth: 260 }}
+          style={{ flex: "1 1 180px", minWidth: 140, maxWidth: 260 }}
         />
-        <span style={{ fontSize: 12.5, color: "var(--text-soft)" }}>{selectedCount} selected</span>
+        <span style={{ fontSize: 12.5, color: "var(--text-soft)", whiteSpace: "nowrap" }}>{selectedCount} selected</span>
       </div>
 
       {cards.length === 0 ? (

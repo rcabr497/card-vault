@@ -3,6 +3,13 @@ import Link from "next/link";
 const ENTRIES: { date: string; title: string; items: string[] }[] = [
   {
     date: "August 26, 2026",
+    title: "Fixed the Add Card dialog on mobile",
+    items: [
+      "On narrow screens, the search box and \"selected\" count in the Add Card dialog (deck view and new deck form) could visually collide instead of wrapping to their own line.",
+    ],
+  },
+  {
+    date: "August 26, 2026",
     title: "Deck type breakdown, fixed",
     items: [
       "A deck's \"Type breakdown\" now actually reflects type: Magic decks break down by mana color, Pokémon decks by elemental type.",
