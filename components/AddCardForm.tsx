@@ -58,14 +58,31 @@ function emptyFields(defaultCategory: string): Fields {
   };
 }
 
-export function AddCardForm({ binderId, binderType }: { binderId: string; binderType: string }) {
+type BinderOption = { id: string; name: string; type: string };
+
+export function AddCardForm({
+  binderId,
+  binderType,
+  binders,
+}: {
+  binderId?: string;
+  binderType?: string;
+  binders?: BinderOption[];
+}) {
   const router = useRouter();
   const [mode, setMode] = useState<Mode>("manual");
-  const [fields, setFields] = useState<Fields>(() => emptyFields(binderType));
+  const [fields, setFields] = useState<Fields>(() => emptyFields(binderType ?? CATEGORIES[0].value));
+  const [selectedBinderId, setSelectedBinderId] = useState("");
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  const showBinderSelect = binderId === undefined && binders !== undefined;
+  const effectiveBinderId = binderId ?? (selectedBinderId || undefined);
+  const effectiveBinderType = binderId
+    ? binderType
+    : binders?.find((b) => b.id === selectedBinderId)?.type;
 
   const lastLookedUpRef = useRef("");
 
@@ -142,7 +159,7 @@ export function AddCardForm({ binderId, binderType }: { binderId: string; binder
       const identifyRes = await fetch("/api/cards/identify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageUrl: uploadData.url, categoryHint: binderType }),
+        body: JSON.stringify({ imageUrl: uploadData.url, categoryHint: effectiveBinderType }),
       });
       const identifyData = await identifyRes.json();
 
@@ -191,7 +208,7 @@ export function AddCardForm({ binderId, binderType }: { binderId: string; binder
       const res = await fetch("/api/cards", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...fields, binderId }),
+        body: JSON.stringify({ ...fields, binderId: effectiveBinderId }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -211,7 +228,7 @@ export function AddCardForm({ binderId, binderType }: { binderId: string; binder
     e.preventDefault();
     const ok = await saveCard();
     if (ok) {
-      router.push(`/binders/${binderId}`);
+      router.push(effectiveBinderId ? `/binders/${effectiveBinderId}` : "/dashboard");
       router.refresh();
     }
   }
@@ -219,7 +236,7 @@ export function AddCardForm({ binderId, binderType }: { binderId: string; binder
   async function handleSaveAndAddNew() {
     const ok = await saveCard();
     if (ok) {
-      setFields(emptyFields(binderType));
+      setFields(emptyFields(effectiveBinderType ?? CATEGORIES[0].value));
       lastLookedUpRef.current = "";
       setSaving(false);
       setError(null);
@@ -308,6 +325,23 @@ export function AddCardForm({ binderId, binderType }: { binderId: string; binder
               ))}
             </select>
           </div>
+          {showBinderSelect && (
+            <div className="field">
+              <label>Binder</label>
+              <select
+                className="input"
+                value={selectedBinderId}
+                onChange={(e) => setSelectedBinderId(e.target.value)}
+              >
+                <option value="">No binder — just my collection</option>
+                {binders!.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           <div className="field">
             <label>Set / Product</label>
             <input className="input" value={fields.setName} onChange={(e) => set("setName", e.target.value)} />

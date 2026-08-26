@@ -14,13 +14,15 @@ export async function POST(req: Request) {
   const name = typeof body?.name === "string" ? body.name.trim() : "";
   const category = typeof body?.category === "string" ? body.category : "";
 
-  if (!binderId || !name || !Object.values(CardCategory).includes(category as CardCategory)) {
-    return NextResponse.json({ error: "binderId, name, and a valid category are required." }, { status: 400 });
+  if (!name || !Object.values(CardCategory).includes(category as CardCategory)) {
+    return NextResponse.json({ error: "name and a valid category are required." }, { status: 400 });
   }
 
-  const binder = await prisma.binder.findFirst({ where: { id: binderId, userId: session.user.id } });
-  if (!binder) {
-    return NextResponse.json({ error: "Binder not found." }, { status: 404 });
+  if (binderId) {
+    const binder = await prisma.binder.findFirst({ where: { id: binderId, userId: session.user.id } });
+    if (!binder) {
+      return NextResponse.json({ error: "Binder not found." }, { status: 404 });
+    }
   }
 
   const condition =
@@ -49,7 +51,7 @@ export async function POST(req: Request) {
       cardSightId: body?.cardSightId || null,
       notes: body?.notes || null,
       metadataJson: body?.metadataJson ? JSON.stringify(body.metadataJson) : null,
-      binderCards: { create: { binderId } },
+      ...(binderId ? { binderCards: { create: { binderId } } } : {}),
     },
   });
 

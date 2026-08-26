@@ -28,7 +28,7 @@ export default async function DashboardPage() {
           <Link href="/export" className="btn btn-secondary">
             Export
           </Link>
-          <Link href="/binders" className="btn btn-primary">
+          <Link href="/cards/new" className="btn btn-primary">
             <IconPlus />
             Add Card
           </Link>
