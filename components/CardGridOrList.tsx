@@ -11,7 +11,6 @@ export type CardListItem = {
   condition: string;
   currentValue: string;
   imageUrl: string | null;
-  binderId: string;
   binderName: string;
 };
 

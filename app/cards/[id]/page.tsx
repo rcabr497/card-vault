@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { formatMoney } from "@/lib/stats";
 import { AppShell } from "@/components/AppShell";
 import { RefreshPrice } from "@/components/RefreshPrice";
+import { DeleteCardButton } from "@/components/DeleteCardButton";
 
 export default async function CardDetailPage({ params }: { params: { id: string } }) {
   const session = await auth();
@@ -12,7 +13,6 @@ export default async function CardDetailPage({ params }: { params: { id: string 
 
   const card = await prisma.card.findFirst({
     where: { id: params.id, userId },
-    include: { binder: { select: { id: true, name: true } } },
   });
   if (!card) notFound();
 
@@ -35,14 +35,17 @@ export default async function CardDetailPage({ params }: { params: { id: string 
     <AppShell active="binders" user={{ name: user.name ?? user.email, plan: user.plan }}>
       <div className="topbar">
         <div>
-          <Link href={`/binders/${card.binder.id}`} className="back-link">
-            ← {card.binder.name}
+          <Link href="/binders" className="back-link">
+            ← All binders
           </Link>
           <h1 className="topbar-title">{card.name}</h1>
         </div>
-        <Link href={`/cards/${card.id}/edit`} className="btn btn-secondary" style={{ marginLeft: "auto" }}>
-          Edit
-        </Link>
+        <div style={{ display: "flex", gap: 10, marginLeft: "auto" }}>
+          <Link href={`/cards/${card.id}/edit`} className="btn btn-secondary">
+            Edit
+          </Link>
+          <DeleteCardButton cardId={card.id} />
+        </div>
       </div>
 
       <div className="page-pad" style={{ display: "flex", gap: 32, alignItems: "flex-start", flexWrap: "wrap" }}>

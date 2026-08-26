@@ -31,7 +31,6 @@ export async function POST(req: Request) {
   const card = await prisma.card.create({
     data: {
       userId: session.user.id,
-      binderId,
       category: category as CardCategory,
       name,
       setName: body?.setName || null,
@@ -50,6 +49,7 @@ export async function POST(req: Request) {
       cardSightId: body?.cardSightId || null,
       notes: body?.notes || null,
       metadataJson: body?.metadataJson ? JSON.stringify(body.metadataJson) : null,
+      binderCards: { create: { binderId } },
     },
   });
 

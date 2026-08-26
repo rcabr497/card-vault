@@ -7,6 +7,7 @@ import { AppShell } from "@/components/AppShell";
 import { DeckNotes } from "@/components/DeckNotes";
 import { DeckShareToggle } from "@/components/DeckShareToggle";
 import { AddCardToDeckDialog } from "@/components/AddCardToDeckDialog";
+import { DeleteDeckButton } from "@/components/DeleteDeckButton";
 import { IconChevronLeft, IconChevronRight } from "@/components/icons";
 
 const PAGE_SIZE = 15;
@@ -67,6 +68,7 @@ export default async function DeckDetailPage({
         <div className="topbar-actions">
           <DeckShareToggle deckId={deck.id} initialShared={deck.isShared} initialSlug={deck.shareSlug} />
           <AddCardToDeckDialog deckId={deck.id} cards={allUserCards} />
+          <DeleteDeckButton deckId={deck.id} />
         </div>
       </div>
 

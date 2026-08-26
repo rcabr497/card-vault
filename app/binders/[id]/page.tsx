@@ -6,6 +6,7 @@ import { formatMoney } from "@/lib/stats";
 import { AppShell } from "@/components/AppShell";
 import { IconPlus, IconChevronLeft, IconChevronRight } from "@/components/icons";
 import { BinderSearchInput } from "@/components/BinderSearchInput";
+import { DeleteBinderButton } from "@/components/DeleteBinderButton";
 import { CardCondition } from "@prisma/client";
 
 const PAGE_SIZE = 15;
@@ -34,7 +35,7 @@ export default async function BinderDetailPage({
   const page = Math.max(1, Number(searchParams.page ?? "1") || 1);
 
   const where = {
-    binderId: binder.id,
+    binderCards: { some: { binderId: binder.id } },
     ...(condition !== "All" ? { condition: condition as CardCondition } : {}),
     ...(q ? { name: { contains: q, mode: "insensitive" as const } } : {}),
   };
@@ -47,7 +48,10 @@ export default async function BinderDetailPage({
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
     }),
-    prisma.card.findMany({ where: { binderId: binder.id }, select: { currentValue: true, quantity: true } }),
+    prisma.card.findMany({
+      where: { binderCards: { some: { binderId: binder.id } } },
+      select: { currentValue: true, quantity: true },
+    }),
   ]);
 
   const totalValue = allBinderCards.reduce((s, c) => s + Number(c.currentValue ?? 0) * c.quantity, 0);
@@ -78,6 +82,7 @@ export default async function BinderDetailPage({
             <IconPlus />
             Add Card
           </Link>
+          <DeleteBinderButton binderId={binder.id} />
         </div>
       </div>
 

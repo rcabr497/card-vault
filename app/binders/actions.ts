@@ -24,3 +24,16 @@ export async function createBinder(formData: FormData) {
   revalidatePath("/binders");
   redirect(`/binders/${binder.id}`);
 }
+
+export async function deleteBinder(binderId: string) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Not signed in.");
+
+  const binder = await prisma.binder.findFirst({ where: { id: binderId, userId: session.user.id } });
+  if (!binder) throw new Error("Binder not found.");
+
+  await prisma.binder.delete({ where: { id: binder.id } });
+
+  revalidatePath("/binders");
+  redirect("/binders");
+}

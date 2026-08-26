@@ -16,7 +16,7 @@ export default async function DashboardPage() {
     prisma.card.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
-      include: { binder: { select: { name: true } } },
+      include: { binderCards: { include: { binder: { select: { name: true } } } } },
     }),
   ]);
 
@@ -118,8 +118,7 @@ export default async function DashboardPage() {
             condition: c.condition,
             currentValue: formatMoney(c.currentValue),
             imageUrl: c.thumbnailUrl ?? c.imageUrl,
-            binderId: c.binderId,
-            binderName: c.binder.name,
+            binderName: c.binderCards.map((bc) => bc.binder.name).join("; ") || "—",
           }))}
         />
       </div>

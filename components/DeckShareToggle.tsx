@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IconShare } from "./icons";
 
 export function DeckShareToggle({
@@ -16,6 +16,11 @@ export function DeckShareToggle({
   const [slug, setSlug] = useState(initialSlug);
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [origin, setOrigin] = useState("");
+
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
 
   async function toggle() {
     setBusy(true);
@@ -30,7 +35,7 @@ export function DeckShareToggle({
     setBusy(false);
   }
 
-  const shareUrl = slug && typeof window !== "undefined" ? `${window.location.origin}/share/decks/${slug}` : "";
+  const shareUrl = slug && origin ? `${origin}/share/decks/${slug}` : "";
 
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10, position: "relative" }}>

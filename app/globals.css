@@ -121,6 +121,14 @@ button {
 .btn-secondary:hover {
   background: var(--surface);
 }
+.btn-danger {
+  background: var(--accent2-light);
+  color: var(--accent2-ink);
+}
+.btn-danger:hover {
+  background: var(--accent2);
+  color: var(--bg);
+}
 .btn-lg {
   font-size: 15px;
   padding: 14px 28px;

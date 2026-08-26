@@ -78,16 +78,22 @@ export async function GET(req: Request) {
   if (scope === "collection") {
     const cards = await prisma.card.findMany({
       where: { userId },
-      include: { binder: { select: { name: true } } },
+      include: { binderCards: { include: { binder: { select: { name: true } } } } },
       orderBy: { createdAt: "desc" },
     });
-    rows = cards.map((c) => ({ ...baseRow(c), binderName: c.binder.name }));
+    rows = cards.map((c) => ({
+      ...baseRow(c),
+      binderName: c.binderCards.map((bc) => bc.binder.name).join("; ") || "—",
+    }));
   } else if (scope === "binder") {
     const binder = await prisma.binder.findFirst({ where: { id: id!, userId } });
     if (!binder) {
       return NextResponse.json({ error: "Binder not found." }, { status: 404 });
     }
-    const cards = await prisma.card.findMany({ where: { binderId: binder.id }, orderBy: { createdAt: "desc" } });
+    const cards = await prisma.card.findMany({
+      where: { binderCards: { some: { binderId: binder.id } } },
+      orderBy: { createdAt: "desc" },
+    });
     rows = cards.map((c) => baseRow(c));
     filenamePart = slugify(binder.name);
   } else {
@@ -97,12 +103,12 @@ export async function GET(req: Request) {
     }
     const deckCards = await prisma.deckCard.findMany({
       where: { deckId: deck.id },
-      include: { card: { include: { binder: { select: { name: true } } } } },
+      include: { card: { include: { binderCards: { include: { binder: { select: { name: true } } } } } } },
       orderBy: { card: { name: "asc" } },
     });
     rows = deckCards.map((dc) => ({
       ...baseRow(dc.card),
-      binderName: dc.card.binder.name,
+      binderName: dc.card.binderCards.map((bc) => bc.binder.name).join("; ") || "—",
       deckQuantity: dc.quantity,
     }));
     filenamePart = slugify(deck.name);
