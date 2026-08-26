@@ -2,6 +2,30 @@ import Link from "next/link";
 
 const ENTRIES: { date: string; title: string; items: string[] }[] = [
   {
+    date: "August 26, 2026",
+    title: "Add a card straight from the Dashboard",
+    items: [
+      "The Dashboard's Add Card button now adds straight to your collection, with an optional Binder picker on the form — no more being forced to pick a binder first.",
+    ],
+  },
+  {
+    date: "August 26, 2026",
+    title: "Cards can live in more than one binder",
+    items: [
+      "A card now belongs to your collection first, and can be placed in zero, one, or several binders — the same card can live in more than one binder at once.",
+      "Deleting a binder never deletes the cards inside it — they stay in your collection and in any other binders they're part of.",
+      "Cards, binders, and decks can all be deleted now, with a confirmation step first.",
+    ],
+  },
+  {
+    date: "August 23, 2026",
+    title: "Accordion mobile navigation",
+    items: [
+      "The mobile menu collapses to a simple bar with a menu button instead of a crowded, scrolling row of icons — tap it to expand Dashboard, Binder, Decks, Changelog, and your profile.",
+      "Profile settings are reachable on mobile for the first time.",
+    ],
+  },
+  {
     date: "August 23, 2026",
     title: "Home page and login polish",
     items: [
