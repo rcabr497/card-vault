@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 
-export function SignupForm() {
+export function SignupForm({ callbackUrl = "/dashboard" }: { callbackUrl?: string }) {
   const router = useRouter();
   const [isSignup, setIsSignup] = useState(true);
   const [name, setName] = useState("");
@@ -40,7 +40,7 @@ export function SignupForm() {
         setSubmitting(false);
         return;
       }
-      router.push("/dashboard");
+      router.push(callbackUrl);
       router.refresh();
     } catch {
       setError("Something went wrong. Please try again.");

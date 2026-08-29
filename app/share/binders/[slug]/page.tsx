@@ -1,9 +1,13 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { formatMoney } from "@/lib/stats";
+import { ImportToCollectionButton } from "@/components/ImportToCollectionButton";
 
 export default async function SharedBinderPage({ params }: { params: { slug: string } }) {
+  const session = await auth();
   const binder = await prisma.binder.findFirst({
     where: { shareSlug: params.slug, isShared: true },
     include: { binderCards: { include: { card: true }, orderBy: { card: { name: "asc" } } } },
@@ -31,23 +35,28 @@ export default async function SharedBinderPage({ params }: { params: { slug: str
           <span style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 19 }}>Card Vault</span>
         </Link>
         <div style={{ marginLeft: "auto" }}>
-          <Link href="/signup" className="btn btn-primary">
-            Sign Up
+          <Link href={session?.user?.id ? "/dashboard" : "/signup"} className="btn btn-primary">
+            {session?.user?.id ? "Dashboard" : "Sign Up"}
           </Link>
         </div>
       </nav>
 
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 24px 80px" }}>
-        <div style={{ marginBottom: 40 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: "var(--accent-ink)", marginBottom: 6 }}>
-            Shared binder
+        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 20, marginBottom: 40 }}>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "var(--accent-ink)", marginBottom: 6 }}>
+              Shared binder
+            </div>
+            <h1 style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 32, margin: "0 0 8px" }}>
+              {binder.name}
+            </h1>
+            <div style={{ fontSize: 13.5, color: "var(--text-soft)" }}>
+              {totalCount} cards · {formatMoney(totalValue)} value
+            </div>
           </div>
-          <h1 style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 32, margin: "0 0 8px" }}>
-            {binder.name}
-          </h1>
-          <div style={{ fontSize: 13.5, color: "var(--text-soft)" }}>
-            {totalCount} cards · {formatMoney(totalValue)} value
-          </div>
+          <Suspense fallback={null}>
+            <ImportToCollectionButton kind="binders" slug={binder.shareSlug!} isLoggedIn={!!session?.user?.id} />
+          </Suspense>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 260px", gap: 32 }} className="deck-cols">

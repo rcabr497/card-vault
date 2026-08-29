@@ -1,10 +1,14 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { formatMoney } from "@/lib/stats";
 import { computeTypeBreakdown } from "@/lib/deckTypeBreakdown";
+import { ImportToCollectionButton } from "@/components/ImportToCollectionButton";
 
 export default async function SharedDeckPage({ params }: { params: { slug: string } }) {
+  const session = await auth();
   const deck = await prisma.deck.findFirst({
     where: { shareSlug: params.slug, isShared: true },
     include: { deckCards: { include: { card: true }, orderBy: { card: { name: "asc" } } } },
@@ -24,36 +28,41 @@ export default async function SharedDeckPage({ params }: { params: { slug: strin
           <span style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 19 }}>Card Vault</span>
         </Link>
         <div style={{ marginLeft: "auto" }}>
-          <Link href="/signup" className="btn btn-primary">
-            Sign Up
+          <Link href={session?.user?.id ? "/dashboard" : "/signup"} className="btn btn-primary">
+            {session?.user?.id ? "Dashboard" : "Sign Up"}
           </Link>
         </div>
       </nav>
 
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 24px 80px" }}>
-        <div style={{ display: "flex", gap: 32, alignItems: "flex-start", flexWrap: "wrap", marginBottom: 40 }}>
-          {deck.featuredImageUrl && (
-            <div className="card-photo" style={{ width: 200, aspectRatio: "2.5/3.5", flex: "none" }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={deck.featuredImageUrl} alt={deck.name} loading="lazy" decoding="async" />
-            </div>
-          )}
-          <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "var(--accent-ink)", marginBottom: 6 }}>
-              Shared deck
-            </div>
-            <h1 style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 32, margin: "0 0 8px" }}>
-              {deck.name}
-            </h1>
-            <div style={{ fontSize: 13.5, color: "var(--text-soft)" }}>
-              {totalCount} cards{deck.format ? ` · ${deck.format}` : ""} · {formatMoney(totalValue)} value
-            </div>
-            {deck.notes && (
-              <p style={{ fontSize: 13.5, color: "var(--text-soft)", marginTop: 16, maxWidth: "60ch" }}>
-                {deck.notes}
-              </p>
+        <div style={{ display: "flex", gap: 32, alignItems: "flex-start", flexWrap: "wrap", justifyContent: "space-between", marginBottom: 40 }}>
+          <div style={{ display: "flex", gap: 32, alignItems: "flex-start", flexWrap: "wrap" }}>
+            {deck.featuredImageUrl && (
+              <div className="card-photo" style={{ width: 200, aspectRatio: "2.5/3.5", flex: "none" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={deck.featuredImageUrl} alt={deck.name} loading="lazy" decoding="async" />
+              </div>
             )}
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "var(--accent-ink)", marginBottom: 6 }}>
+                Shared deck
+              </div>
+              <h1 style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 32, margin: "0 0 8px" }}>
+                {deck.name}
+              </h1>
+              <div style={{ fontSize: 13.5, color: "var(--text-soft)" }}>
+                {totalCount} cards{deck.format ? ` · ${deck.format}` : ""} · {formatMoney(totalValue)} value
+              </div>
+              {deck.notes && (
+                <p style={{ fontSize: 13.5, color: "var(--text-soft)", marginTop: 16, maxWidth: "60ch" }}>
+                  {deck.notes}
+                </p>
+              )}
+            </div>
           </div>
+          <Suspense fallback={null}>
+            <ImportToCollectionButton kind="decks" slug={deck.shareSlug!} isLoggedIn={!!session?.user?.id} />
+          </Suspense>
         </div>
 
         <div

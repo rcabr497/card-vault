@@ -2,6 +2,14 @@ import Link from "next/link";
 
 const ENTRIES: { date: string; title: string; items: string[] }[] = [
   {
+    date: "August 29, 2026",
+    title: "Import shared decks and binders into your own collection",
+    items: [
+      "Public deck and binder pages now have an \"Import to Collection\" button that copies every card into your own collection.",
+      "Not signed in yet? Clicking it takes you to log in or sign up, then brings you straight back and finishes the import automatically.",
+    ],
+  },
+  {
     date: "August 26, 2026",
     title: "Pagination on the Dashboard, and faster image loading",
     items: [
