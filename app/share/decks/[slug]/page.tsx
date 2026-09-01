@@ -53,6 +53,11 @@ export default async function SharedDeckPage({ params }: { params: { slug: strin
               <div style={{ fontSize: 13.5, color: "var(--text-soft)" }}>
                 {totalCount} cards{deck.format ? ` · ${deck.format}` : ""} · {formatMoney(totalValue)} value
               </div>
+              {deck.originalOwnerName && (
+                <div style={{ fontSize: 12, color: "var(--text-soft)", marginTop: 4 }}>
+                  Originally created by {deck.originalOwnerName}
+                </div>
+              )}
               {deck.notes && (
                 <p style={{ fontSize: 13.5, color: "var(--text-soft)", marginTop: 16, maxWidth: "60ch" }}>
                   {deck.notes}

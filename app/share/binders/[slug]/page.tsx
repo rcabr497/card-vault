@@ -53,6 +53,11 @@ export default async function SharedBinderPage({ params }: { params: { slug: str
             <div style={{ fontSize: 13.5, color: "var(--text-soft)" }}>
               {totalCount} cards · {formatMoney(totalValue)} value
             </div>
+            {binder.originalOwnerName && (
+              <div style={{ fontSize: 12, color: "var(--text-soft)", marginTop: 4 }}>
+                Originally created by {binder.originalOwnerName}
+              </div>
+            )}
           </div>
           <Suspense fallback={null}>
             <ImportToCollectionButton kind="binders" slug={binder.shareSlug!} isLoggedIn={!!session?.user?.id} />

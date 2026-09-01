@@ -76,6 +76,11 @@ export default async function BinderDetailPage({
           <div className="topbar-subtitle">
             {totalCards} cards · {formatMoney(totalValue)} value
           </div>
+          {binder.originalOwnerName && (
+            <div style={{ fontSize: 12, color: "var(--text-soft)", marginTop: 4 }}>
+              Originally created by {binder.originalOwnerName}
+            </div>
+          )}
         </div>
         <div className="topbar-actions">
           <BinderSearchInput binderId={binder.id} initialQ={q} condition={condition} />

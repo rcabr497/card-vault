@@ -16,33 +16,40 @@ export function ImportToCollectionButton({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [busy, setBusy] = useState(false);
-  const [imported, setImported] = useState<number | null>(null);
+  const [busy, setBusy] = useState<"cards" | "container" | null>(null);
+  const [result, setResult] = useState<{ imported: number; id?: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const ranAutoImport = useRef(false);
 
-  async function handleImport() {
-    setBusy(true);
+  const containerLabel = kind === "decks" ? "deck" : "binder";
+  const containerMode = kind === "decks" ? "deck" : "binder";
+
+  async function handleImport(mode: "cards" | "container") {
+    setBusy(mode);
     setError(null);
     try {
-      const res = await fetch(`/api/share/${kind}/${slug}/import`, { method: "POST" });
+      const res = await fetch(`/api/share/${kind}/${slug}/import`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: mode === "container" ? containerMode : "cards" }),
+      });
       const data = await res.json().catch(() => null);
       if (!res.ok) {
         setError(data?.error ?? "Something went wrong.");
         return;
       }
-      setImported(data.imported);
+      setResult({ imported: data.imported, id: data.binderId ?? data.deckId });
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
-      setBusy(false);
+      setBusy(null);
     }
   }
 
   useEffect(() => {
     if (isLoggedIn && searchParams.get("autoImport") === "1" && !ranAutoImport.current) {
       ranAutoImport.current = true;
-      handleImport();
+      handleImport("cards");
       router.replace(`/share/${kind}/${slug}`);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -60,14 +67,39 @@ export function ImportToCollectionButton({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "flex-end" }}>
-      <button type="button" className="btn btn-primary" onClick={handleImport} disabled={busy}>
-        <IconPlus />
-        {busy ? "Importing…" : imported !== null ? "Imported!" : "Import to Collection"}
-      </button>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end" }}>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => handleImport("cards")}
+          disabled={busy !== null}
+          title={`Add these cards to your collection without keeping the ${containerLabel}`}
+        >
+          <IconPlus />
+          {busy === "cards" ? "Importing…" : "Import Cards Only"}
+        </button>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => handleImport("container")}
+          disabled={busy !== null}
+          title={`Copy the whole ${containerLabel}, keeping its name and details`}
+        >
+          <IconPlus />
+          {busy === "container" ? "Copying…" : `Copy as New ${containerLabel === "deck" ? "Deck" : "Binder"}`}
+        </button>
+      </div>
       {error && <div className="form-error">{error}</div>}
-      {imported !== null && !error && (
+      {result && !error && (
         <span style={{ fontSize: 12, color: "var(--text-soft)" }}>
-          Added {imported} card{imported === 1 ? "" : "s"} to your collection.
+          {result.id ? (
+            <>
+              Copied {containerLabel} with {result.imported} card{result.imported === 1 ? "" : "s"}.{" "}
+              <Link href={`/${kind}/${result.id}`}>View it →</Link>
+            </>
+          ) : (
+            <>Added {result.imported} card{result.imported === 1 ? "" : "s"} to your collection.</>
+          )}
         </span>
       )}
     </div>
