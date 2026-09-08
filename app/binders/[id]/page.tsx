@@ -80,6 +80,11 @@ export default async function BinderDetailPage({
             </span>
             {binder.type === "sports" && <BinderSportSelect binderId={binder.id} initialSport={binder.sport} />}
           </div>
+          {binder.originalOwnerName && (
+            <div style={{ fontSize: 12, color: "var(--text-soft)", marginTop: 4 }}>
+              Originally created by {binder.originalOwnerName}
+            </div>
+          )}
         </div>
         <div className="topbar-actions">
           <BinderSearchInput binderId={binder.id} initialQ={q} condition={condition} />

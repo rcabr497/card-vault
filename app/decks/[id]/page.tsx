@@ -57,6 +57,11 @@ export default async function DeckDetailPage({
           <div className="topbar-subtitle">
             {totalCount} cards{deck.format ? ` · ${deck.format}` : ""} · {formatMoney(totalValue)} value
           </div>
+          {deck.originalOwnerName && (
+            <div style={{ fontSize: 12, color: "var(--text-soft)", marginTop: 4 }}>
+              Originally created by {deck.originalOwnerName}
+            </div>
+          )}
         </div>
         <div className="topbar-actions">
           <DeckShareToggle deckId={deck.id} initialShared={deck.isShared} initialSlug={deck.shareSlug} />

@@ -29,3 +29,9 @@ export function buildImportedCardData(
     cardSightId: card.cardSightId,
   };
 }
+
+// The name credited as "original owner" on a copied binder/deck: the
+// owner's display name, falling back to their email if they never set one.
+export function originalOwnerNameOf(owner: { name: string | null; email: string }): string {
+  return owner.name ?? owner.email;
+}
