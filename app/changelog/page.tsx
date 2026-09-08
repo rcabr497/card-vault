@@ -3,6 +3,14 @@ import Link from "next/link";
 const ENTRIES: { date: string; title: string; items: string[] }[] = [
   {
     date: "September 8, 2026",
+    title: "Copy a whole shared binder or deck, not just its cards",
+    items: [
+      "Public deck and binder pages now offer \"Copy as New Binder/Deck\" alongside the existing card-only import — it recreates the whole binder or deck under your account, keeping its name and details.",
+      "A copied binder or deck always credits who originally made it.",
+    ],
+  },
+  {
+    date: "September 8, 2026",
     title: "Sport-specific card scanning for Sports binders",
     items: [
       "Sports binders now ask which sport they're for (Baseball, Basketball, Football, Hockey, Soccer, or MMA) so photo/camera scans match against that sport's specific catalog instead of a generic default — meaningfully more accurate identification.",
