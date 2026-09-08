@@ -10,8 +10,18 @@ const TYPE_OPTIONS: { value: string; label: string }[] = [
   { value: "sports", label: "Sports" },
 ];
 
+const SPORT_OPTIONS: { value: string; label: string }[] = [
+  { value: "baseball", label: "Baseball" },
+  { value: "basketball", label: "Basketball" },
+  { value: "football", label: "Football" },
+  { value: "hockey", label: "Hockey" },
+  { value: "soccer", label: "Soccer" },
+  { value: "mma", label: "MMA" },
+];
+
 export function NewBinderDialog() {
   const [open, setOpen] = useState(false);
+  const [type, setType] = useState("pokemon");
 
   return (
     <>
@@ -31,7 +41,14 @@ export function NewBinderDialog() {
               </div>
               <div className="field">
                 <label htmlFor="binder-type">Type</label>
-                <select id="binder-type" name="type" className="input" defaultValue="pokemon" required>
+                <select
+                  id="binder-type"
+                  name="type"
+                  className="input"
+                  value={type}
+                  onChange={(e) => setType(e.target.value)}
+                  required
+                >
                   {TYPE_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
@@ -39,6 +56,21 @@ export function NewBinderDialog() {
                   ))}
                 </select>
               </div>
+              {type === "sports" && (
+                <div className="field">
+                  <label htmlFor="binder-sport">Sport</label>
+                  <select id="binder-sport" name="sport" className="input" defaultValue="" required>
+                    <option value="" disabled>
+                      Choose a sport…
+                    </option>
+                    {SPORT_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <div className="dialog-actions">
                 <button type="button" className="btn btn-secondary" onClick={() => setOpen(false)}>
                   Cancel

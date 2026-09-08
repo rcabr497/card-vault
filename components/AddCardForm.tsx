@@ -58,15 +58,17 @@ function emptyFields(defaultCategory: string): Fields {
   };
 }
 
-type BinderOption = { id: string; name: string; type: string };
+type BinderOption = { id: string; name: string; type: string; sport: string | null };
 
 export function AddCardForm({
   binderId,
   binderType,
+  binderSport,
   binders,
 }: {
   binderId?: string;
   binderType?: string;
+  binderSport?: string;
   binders?: BinderOption[];
 }) {
   const router = useRouter();
@@ -80,9 +82,9 @@ export function AddCardForm({
 
   const showBinderSelect = binderId === undefined && binders !== undefined;
   const effectiveBinderId = binderId ?? (selectedBinderId || undefined);
-  const effectiveBinderType = binderId
-    ? binderType
-    : binders?.find((b) => b.id === selectedBinderId)?.type;
+  const selectedBinder = binders?.find((b) => b.id === selectedBinderId);
+  const effectiveBinderType = binderId ? binderType : selectedBinder?.type;
+  const effectiveBinderSport = binderId ? binderSport : selectedBinder?.sport ?? undefined;
 
   const lastLookedUpRef = useRef("");
 
@@ -159,7 +161,7 @@ export function AddCardForm({
       const identifyRes = await fetch("/api/cards/identify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageUrl: uploadData.url, categoryHint: effectiveBinderType }),
+        body: JSON.stringify({ imageUrl: uploadData.url, categoryHint: effectiveBinderType, sportHint: effectiveBinderSport }),
       });
       const identifyData = await identifyRes.json();
 

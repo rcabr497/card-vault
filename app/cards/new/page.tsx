@@ -10,7 +10,11 @@ export default async function NewCardPage() {
 
   const [user, binders] = await Promise.all([
     prisma.user.findUniqueOrThrow({ where: { id: userId } }),
-    prisma.binder.findMany({ where: { userId }, orderBy: { name: "asc" }, select: { id: true, name: true, type: true } }),
+    prisma.binder.findMany({
+      where: { userId },
+      orderBy: { name: "asc" },
+      select: { id: true, name: true, type: true, sport: true },
+    }),
   ]);
 
   return (

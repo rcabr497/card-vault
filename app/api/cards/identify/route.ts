@@ -11,13 +11,14 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   const imageUrl = typeof body?.imageUrl === "string" ? body.imageUrl : "";
   const categoryHint = typeof body?.categoryHint === "string" ? body.categoryHint : undefined;
+  const sportHint = typeof body?.sportHint === "string" ? body.sportHint : undefined;
 
   if (!imageUrl) {
     return NextResponse.json({ error: "imageUrl is required." }, { status: 400 });
   }
 
   try {
-    const result = await identifyCardImage(imageUrl, categoryHint, session.user.id);
+    const result = await identifyCardImage(imageUrl, categoryHint, session.user.id, sportHint);
     return NextResponse.json(result);
   } catch (err) {
     return NextResponse.json(

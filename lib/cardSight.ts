@@ -98,10 +98,17 @@ async function fetchAndStoreThumbnail(cardId: string, userId: string, apiKey: st
   }
 }
 
+// CardSight's identifiable sport segments, confirmed live against
+// GET /v1/catalog/segments (is_identifiable: true). Golf, racing, and
+// multi-sport exist in their catalog but aren't identifiable, so they're
+// deliberately excluded here.
+const IDENTIFIABLE_SPORTS = new Set(["baseball", "basketball", "football", "hockey", "soccer", "mma"]);
+
 export async function identifyCardImage(
   imageUrl: string,
   categoryHint: string | undefined,
-  userId: string
+  userId: string,
+  sportHint?: string
 ): Promise<IdentifyResult> {
   const apiKey = process.env.CARDSIGHT_API_KEY;
   if (!apiKey) {
@@ -116,10 +123,15 @@ export async function identifyCardImage(
 
   // Confirmed live against CardSight's real catalog (GET /v1/catalog/segments):
   // our own category values already match their segment "shortname" exactly for
-  // pokemon/mtg, so no lookup/translation is needed. "sports" has no single
-  // matching segment (no specific sport collected at the binder level) — omit
-  // it and let CardSight fall back to its own default.
-  const segment = categoryHint === "pokemon" || categoryHint === "mtg" ? categoryHint : null;
+  // pokemon/mtg, so no lookup/translation is needed. For "sports", the binder's
+  // specific sport (if set) maps directly to CardSight's own identifiable sport
+  // segments — falling back to the generic default only when no sport is set.
+  const segment =
+    categoryHint === "pokemon" || categoryHint === "mtg"
+      ? categoryHint
+      : categoryHint === "sports" && sportHint && IDENTIFIABLE_SPORTS.has(sportHint)
+        ? sportHint
+        : null;
 
   const form = new FormData();
   form.append("image", imageBlob, "card.jpg");

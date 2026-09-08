@@ -53,6 +53,15 @@ enum BinderType {
   sports
 }
 
+enum Sport {
+  baseball
+  basketball
+  football
+  hockey
+  soccer
+  mma
+}
+
 enum CardCategory {
   pokemon
   mtg
@@ -87,6 +96,7 @@ model Binder {
   userId    String
   name      String
   type      BinderType
+  sport     Sport?
   isShared  Boolean    @default(false)
   shareSlug String?    @unique
   createdAt DateTime   @default(now())

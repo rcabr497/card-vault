@@ -25,7 +25,7 @@ export default async function AddCardPage({ params }: { params: { id: string } }
         </div>
       </div>
       <div className="page-pad">
-        <AddCardForm binderId={binder.id} binderType={binder.type} />
+        <AddCardForm binderId={binder.id} binderType={binder.type} binderSport={binder.sport ?? undefined} />
       </div>
     </AppShell>
   );

@@ -2,6 +2,14 @@ import Link from "next/link";
 
 const ENTRIES: { date: string; title: string; items: string[] }[] = [
   {
+    date: "September 8, 2026",
+    title: "Sport-specific card scanning for Sports binders",
+    items: [
+      "Sports binders now ask which sport they're for (Baseball, Basketball, Football, Hockey, Soccer, or MMA) so photo/camera scans match against that sport's specific catalog instead of a generic default — meaningfully more accurate identification.",
+      "Existing Sports binders can set their sport anytime from the binder page.",
+    ],
+  },
+  {
     date: "August 29, 2026",
     title: "Import shared decks and binders into your own collection",
     items: [

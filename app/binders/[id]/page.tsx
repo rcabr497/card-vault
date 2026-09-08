@@ -8,6 +8,7 @@ import { IconPlus, IconChevronLeft, IconChevronRight } from "@/components/icons"
 import { BinderSearchInput } from "@/components/BinderSearchInput";
 import { DeleteBinderButton } from "@/components/DeleteBinderButton";
 import { BinderShareToggle } from "@/components/BinderShareToggle";
+import { BinderSportSelect } from "@/components/BinderSportSelect";
 import { CardCondition } from "@prisma/client";
 
 const PAGE_SIZE = 15;
@@ -73,8 +74,11 @@ export default async function BinderDetailPage({
             ← All binders
           </Link>
           <h1 className="topbar-title">Binder — {binder.name}</h1>
-          <div className="topbar-subtitle">
-            {totalCards} cards · {formatMoney(totalValue)} value
+          <div className="topbar-subtitle" style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            <span>
+              {totalCards} cards · {formatMoney(totalValue)} value
+            </span>
+            {binder.type === "sports" && <BinderSportSelect binderId={binder.id} initialSport={binder.sport} />}
           </div>
         </div>
         <div className="topbar-actions">
