@@ -27,6 +27,7 @@ export async function POST(req: Request, { params }: { params: { slug: string } 
           user: { connect: { id: session.user.id } },
           name: binder.name,
           type: binder.type,
+          sport: binder.sport,
           originalOwnerName: originalOwnerNameOf(binder.user),
         },
       });
@@ -42,6 +43,7 @@ export async function POST(req: Request, { params }: { params: { slug: string } 
           user: { connect: { id: session.user.id } },
           name: binder.name,
           type: binder.type,
+          sport: binder.sport,
           originalOwnerName: originalOwnerNameOf(binder.user),
         },
       });
