@@ -4,13 +4,24 @@ import { Prisma } from "@prisma/client";
 export async function getDashboardStats(userId: string) {
   const cards = await prisma.card.findMany({
     where: { userId },
-    select: { quantity: true, currentValue: true, setName: true, createdAt: true },
+    select: {
+      quantity: true,
+      currentValue: true,
+      setName: true,
+      createdAt: true,
+      category: true,
+      gradingCompany: true,
+    },
   });
 
   const cardsLogged = cards.reduce((sum, c) => sum + c.quantity, 0);
   const totalValue = cards.reduce((sum, c) => sum + Number(c.currentValue ?? 0) * c.quantity, 0);
   const setsTracked = new Set(cards.filter((c) => c.setName).map((c) => c.setName)).size;
   const bindersCount = await prisma.binder.count({ where: { userId } });
+
+  const byCategory = { pokemon: 0, mtg: 0, sports: 0, other: 0 };
+  for (const c of cards) byCategory[c.category] += c.quantity;
+  const gradedCount = cards.filter((c) => c.gradingCompany).reduce((sum, c) => sum + c.quantity, 0);
 
   const now = new Date();
   const months = Array.from({ length: 6 }, (_, i) => {
@@ -36,7 +47,7 @@ export async function getDashboardStats(userId: string) {
   const recent = await prisma.card.findMany({
     where: { userId },
     orderBy: { createdAt: "desc" },
-    take: 4,
+    take: 10,
     select: { id: true, name: true, setName: true, currentValue: true, imageUrl: true, thumbnailUrl: true },
   });
 
@@ -47,6 +58,15 @@ export async function getDashboardStats(userId: string) {
       { label: "Sets tracked", value: setsTracked.toLocaleString() },
       { label: "Binders", value: bindersCount.toLocaleString() },
     ],
+    breakdown: {
+      byCategory: [
+        { key: "pokemon", label: "Pokémon", count: byCategory.pokemon },
+        { key: "mtg", label: "Magic", count: byCategory.mtg },
+        { key: "sports", label: "Sports", count: byCategory.sports },
+        { key: "other", label: "Other", count: byCategory.other },
+      ].filter((b) => b.count > 0),
+      gradedCount,
+    },
     recent: recent.map((c) => ({
       id: c.id,
       name: c.name,

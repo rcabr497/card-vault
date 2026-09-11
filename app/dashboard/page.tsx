@@ -1,38 +1,18 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { getDashboardStats, formatMoney } from "@/lib/stats";
+import { getDashboardStats } from "@/lib/stats";
 import { AppShell } from "@/components/AppShell";
-import { CardGridOrList } from "@/components/CardGridOrList";
 import { IconPlus } from "@/components/icons";
 
-const PAGE_SIZE = 12;
-
-export default async function DashboardPage({ searchParams }: { searchParams: { q?: string; page?: string } }) {
+export default async function DashboardPage() {
   const session = await auth();
   const userId = session!.user.id;
 
-  const q = searchParams.q ?? "";
-  const page = Math.max(1, Number(searchParams.page ?? "1") || 1);
-  const where = {
-    userId,
-    ...(q ? { name: { contains: q, mode: "insensitive" as const } } : {}),
-  };
-
-  const [user, { stats, recent, trend }, totalCount, pageCards] = await Promise.all([
+  const [user, { stats, breakdown, recent, trend }] = await Promise.all([
     prisma.user.findUniqueOrThrow({ where: { id: userId } }),
     getDashboardStats(userId),
-    prisma.card.count({ where }),
-    prisma.card.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      skip: (page - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
-      include: { binderCards: { include: { binder: { select: { name: true } } } } },
-    }),
   ]);
-
-  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
   return (
     <AppShell active="dashboard" user={{ name: user.name ?? user.email, plan: user.plan }}>
@@ -50,7 +30,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: { 
       </div>
 
       <div className="page-pad">
-        <div className="grid grid-4" style={{ marginBottom: 36 }}>
+        <div className="grid grid-4" style={{ marginBottom: 24 }}>
           {stats.map((s) => (
             <div key={s.label} className="surface-card" style={{ padding: 20 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-soft)", marginBottom: 8 }}>
@@ -61,14 +41,45 @@ export default async function DashboardPage({ searchParams }: { searchParams: { 
           ))}
         </div>
 
+        <div className="surface-card" style={{ padding: 20, marginBottom: 36 }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 14, flexWrap: "wrap", gap: 8 }}>
+            <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 15, margin: 0 }}>
+              Collection breakdown
+            </h2>
+            <Link href="/collection" style={{ fontSize: 12.5, fontWeight: 600, color: "var(--accent-ink)" }}>
+              View collection →
+            </Link>
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 24, fontSize: 13 }}>
+            {breakdown.byCategory.length === 0 ? (
+              <span style={{ color: "var(--text-soft)" }}>No cards logged yet.</span>
+            ) : (
+              breakdown.byCategory.map((b) => (
+                <div key={b.key}>
+                  <span style={{ fontWeight: 800, fontFamily: "var(--font-heading)" }}>{b.count.toLocaleString()}</span>{" "}
+                  <span style={{ color: "var(--text-soft)" }}>{b.label}</span>
+                </div>
+              ))
+            )}
+            {breakdown.gradedCount > 0 && (
+              <div>
+                <span style={{ fontWeight: 800, fontFamily: "var(--font-heading)" }}>
+                  {breakdown.gradedCount.toLocaleString()}
+                </span>{" "}
+                <span style={{ color: "var(--text-soft)" }}>graded</span>
+              </div>
+            )}
+          </div>
+        </div>
+
         <div className="grid dashboard-cols" style={{ gridTemplateColumns: "1.3fr 1fr", gap: 24, marginBottom: 40 }}>
           <div>
             <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 16 }}>
               <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 17, margin: 0 }}>
                 Recent additions
               </h2>
-              <Link href="/binders" style={{ fontSize: 12.5, fontWeight: 600, color: "var(--accent-ink)" }}>
-                View binders →
+              <Link href="/collection" style={{ fontSize: 12.5, fontWeight: 600, color: "var(--accent-ink)" }}>
+                View collection →
               </Link>
             </div>
             <div className="grid grid-4">
@@ -76,7 +87,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: { 
                 <p style={{ fontSize: 13.5, color: "var(--text-soft)" }}>Nothing logged yet.</p>
               )}
               {recent.map((c) => (
-                <div key={c.id} className="tile" style={{ padding: 10, gap: 8 }}>
+                <Link key={c.id} href={`/cards/${c.id}`} className="tile" style={{ padding: 10, gap: 8 }}>
                   <div className="card-photo">
                     {c.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -92,7 +103,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: { 
                     <span>{c.set}</span>
                     <span style={{ color: "var(--accent-ink)", fontWeight: 700 }}>{c.value}</span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
@@ -122,23 +133,6 @@ export default async function DashboardPage({ searchParams }: { searchParams: { 
             </div>
           </div>
         </div>
-
-        <CardGridOrList
-          cards={pageCards.map((c) => ({
-            id: c.id,
-            name: c.name,
-            setName: c.setName,
-            cardNumber: c.cardNumber,
-            condition: c.condition,
-            currentValue: formatMoney(c.currentValue),
-            imageUrl: c.thumbnailUrl ?? c.imageUrl,
-            binderName: c.binderCards.map((bc) => bc.binder.name).join("; ") || "—",
-          }))}
-          q={q}
-          page={page}
-          totalPages={totalPages}
-          basePath="/dashboard"
-        />
       </div>
     </AppShell>
   );

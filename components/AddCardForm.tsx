@@ -79,6 +79,8 @@ export function AddCardForm({
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [autoMode, setAutoMode] = useState(false);
+  const [autoSaved, setAutoSaved] = useState<{ id: string; name: string }[]>([]);
 
   const showBinderSelect = binderId === undefined && binders !== undefined;
   const effectiveBinderId = binderId ?? (selectedBinderId || undefined);
@@ -87,9 +89,22 @@ export function AddCardForm({
   const effectiveBinderSport = binderId ? binderSport : selectedBinder?.sport ?? undefined;
 
   const lastLookedUpRef = useRef("");
+  const topRef = useRef<HTMLDivElement>(null);
 
   function set<K extends keyof Fields>(key: K, value: Fields[K]) {
     setFields((f) => ({ ...f, [key]: value }));
+  }
+
+  function resetForm(statusMsg: string) {
+    setFields(emptyFields(effectiveBinderType ?? CATEGORIES[0].value));
+    lastLookedUpRef.current = "";
+    setSaving(false);
+    setError(null);
+    setStatus(statusMsg);
+    // Scroll the capture area back into view before the refresh re-render.
+    topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    setTimeout(() => topRef.current?.scrollIntoView({ block: "start" }), 150);
+    router.refresh();
   }
 
   async function handleLookupByName() {
@@ -171,7 +186,38 @@ export function AddCardForm({
         return;
       }
 
+      const highConfidence = !identifyData.needsReview && identifyData.name && identifyData.confidence === "High";
+
+      const merged: Fields = {
+        ...emptyFields(effectiveBinderType ?? CATEGORIES[0].value),
+        name: identifyData.name ?? "",
+        setName: identifyData.setName ?? "",
+        cardNumber: identifyData.cardNumber ?? "",
+        year: identifyData.year ? String(identifyData.year) : "",
+        rarity: identifyData.rarity ?? "",
+        gradingCompany: identifyData.gradingCompany ?? "",
+        grade: identifyData.grade ?? "",
+        imageUrl: uploadData.url,
+        thumbnailUrl: identifyData.thumbnailUrl ?? "",
+        cardSightId: identifyData.cardSightId ?? "",
+        currentValue:
+          typeof identifyData.estimatedValue === "number" ? String(identifyData.estimatedValue) : "",
+      };
+
+      if (autoMode && highConfidence) {
+        const res = await saveCard(merged);
+        if (res.ok && res.id) {
+          setAutoSaved((prev) => [{ id: res.id!, name: merged.name }, ...prev]);
+          resetForm(
+            `Auto-saved “${merged.name}” (${autoSaved.length + 1} this session) — scan the next card.`
+          );
+          return;
+        }
+        // Save failed — drop into the normal review flow with the fields filled in.
+      }
+
       if (identifyData.needsReview || !identifyData.name) {
+        setFields((f) => ({ ...f, imageUrl: uploadData.url }));
         setStatus("Photo saved — low confidence match, please review the details below.");
       } else {
         setFields((f) => ({
@@ -203,32 +249,32 @@ export function AddCardForm({
     }
   }
 
-  async function saveCard(): Promise<boolean> {
+  async function saveCard(explicit?: Fields): Promise<{ ok: boolean; id?: string }> {
     setSaving(true);
     setError(null);
     try {
       const res = await fetch("/api/cards", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...fields, binderId: effectiveBinderId }),
+        body: JSON.stringify({ ...(explicit ?? fields), binderId: effectiveBinderId }),
       });
       const data = await res.json();
+      setSaving(false);
       if (!res.ok) {
         setError(data.error ?? "Something went wrong.");
-        setSaving(false);
-        return false;
+        return { ok: false };
       }
-      return true;
+      return { ok: true, id: data.id };
     } catch {
-      setError("Something went wrong. Please try again.");
       setSaving(false);
-      return false;
+      setError("Something went wrong. Please try again.");
+      return { ok: false };
     }
   }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
-    const ok = await saveCard();
+    const { ok } = await saveCard();
     if (ok) {
       router.push(effectiveBinderId ? `/binders/${effectiveBinderId}` : "/dashboard");
       router.refresh();
@@ -236,19 +282,24 @@ export function AddCardForm({
   }
 
   async function handleSaveAndAddNew() {
-    const ok = await saveCard();
-    if (ok) {
-      setFields(emptyFields(effectiveBinderType ?? CATEGORIES[0].value));
-      lastLookedUpRef.current = "";
-      setSaving(false);
-      setError(null);
-      setStatus("Card saved — add another below.");
+    const { ok } = await saveCard();
+    if (ok) resetForm("Card saved — add another below.");
+  }
+
+  async function undoAutoSaved(id: string) {
+    setAutoSaved((prev) => prev.filter((c) => c.id !== id));
+    try {
+      await fetch(`/api/cards/${id}`, { method: "DELETE" });
       router.refresh();
+    } catch {
+      setError("Couldn't undo that one — remove it from the collection page.");
     }
   }
 
+  const showAutoToggle = mode === "camera" || mode === "upload";
+
   return (
-    <div style={{ maxWidth: 720, display: "flex", flexDirection: "column", gap: 24 }}>
+    <div ref={topRef} style={{ maxWidth: 720, display: "flex", flexDirection: "column", gap: 24 }}>
       <div style={{ display: "flex", gap: 6 }}>
         {(["manual", "upload", "camera"] as Mode[]).map((m) => (
           <button
@@ -303,6 +354,23 @@ export function AddCardForm({
 
         {mode === "camera" && <CameraCapture onCapture={handlePhoto} />}
 
+        {showAutoToggle && (
+          <label
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              fontSize: 12.5,
+              color: "var(--text-soft)",
+              marginTop: 16,
+              cursor: "pointer",
+            }}
+          >
+            <input type="checkbox" checked={autoMode} onChange={(e) => setAutoMode(e.target.checked)} />
+            Auto-save high-confidence matches and jump to the next card
+          </label>
+        )}
+
         {status && <p style={{ fontSize: 12.5, color: "var(--text-soft)", marginTop: 14 }}>{status}</p>}
         {error && (
           <div className="form-error" style={{ marginTop: 14 }}>
@@ -310,6 +378,27 @@ export function AddCardForm({
           </div>
         )}
       </div>
+
+      {autoSaved.length > 0 && (
+        <div className="surface-card" style={{ padding: 16 }}>
+          <div style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 10 }}>
+            Auto-saved this session ({autoSaved.length})
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {autoSaved.map((c) => (
+              <div
+                key={c.id}
+                style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, fontSize: 13 }}
+              >
+                <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.name}</span>
+                <button type="button" className="pill" onClick={() => undoAutoSaved(c.id)}>
+                  Undo
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
         <div className="grid" style={{ gridTemplateColumns: "1fr 1fr", gap: 18 }}>

@@ -2,6 +2,16 @@ import Link from "next/link";
 
 const ENTRIES: { date: string; title: string; items: string[] }[] = [
   {
+    date: "September 10, 2026",
+    title: "Collection page, dashboard refresh, and scan Auto mode",
+    items: [
+      "New Collection page (in the sidebar) showing every card in your account, with filters for game, year, condition, in-a-binder vs. loose, team/type, plus name search and sort options.",
+      "The dashboard drops its long card list for a collection breakdown by game, a graded count, and the 10 most recent additions.",
+      "Scanning has an Auto mode: turn it on and any high-confidence match saves itself and clears the form for the next card — with an \"Undo\" list for anything it got wrong.",
+      "After \"Save + Add New\", the form now scrolls the camera/upload area back into view.",
+    ],
+  },
+  {
     date: "September 8, 2026",
     title: "Copy a whole shared binder or deck, not just its cards",
     items: [

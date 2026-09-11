@@ -22,12 +22,14 @@ export function CardGridOrList({
   page,
   totalPages,
   basePath,
+  extraParams = {},
 }: {
   cards: CardListItem[];
   q: string;
   page: number;
   totalPages: number;
   basePath: string;
+  extraParams?: Record<string, string>;
 }) {
   const router = useRouter();
   const [view, setView] = useState<"grid" | "list">("grid");
@@ -38,8 +40,9 @@ export function CardGridOrList({
     if (value === q) return;
     clearTimeout(timer.current);
     timer.current = setTimeout(() => {
-      const params = new URLSearchParams({ page: "1" });
+      const params = new URLSearchParams({ ...extraParams, page: "1" });
       if (value.trim()) params.set("q", value.trim());
+      else params.delete("q");
       router.push(`${basePath}?${params.toString()}`);
     }, 300);
     return () => clearTimeout(timer.current);
@@ -47,7 +50,7 @@ export function CardGridOrList({
   }, [value]);
 
   const linkWith = (overrides: Record<string, string>) => {
-    const params = new URLSearchParams({ page: String(page), ...overrides });
+    const params = new URLSearchParams({ ...extraParams, page: String(page), ...overrides });
     if (!params.get("q")) params.delete("q");
     return `${basePath}?${params.toString()}`;
   };
@@ -86,7 +89,13 @@ export function CardGridOrList({
 
       {cards.length === 0 ? (
         <p style={{ fontSize: 13.5, color: "var(--text-soft)" }}>
-          {q ? <>No cards match &quot;{q}&quot;.</> : "No cards logged yet."}
+          {q ? (
+            <>No cards match &quot;{q}&quot;.</>
+          ) : Object.keys(extraParams).length > 0 ? (
+            "No cards match these filters."
+          ) : (
+            "No cards logged yet."
+          )}
         </p>
       ) : view === "grid" ? (
         <div className="grid grid-3">
