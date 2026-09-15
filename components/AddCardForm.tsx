@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { CameraCapture } from "./CameraCapture";
 import { IconUpload } from "./icons";
 
@@ -194,6 +195,7 @@ export function AddCardForm({
         setName: identifyData.setName ?? "",
         cardNumber: identifyData.cardNumber ?? "",
         year: identifyData.year ? String(identifyData.year) : "",
+        team: identifyData.team ?? "",
         rarity: identifyData.rarity ?? "",
         gradingCompany: identifyData.gradingCompany ?? "",
         grade: identifyData.grade ?? "",
@@ -226,6 +228,7 @@ export function AddCardForm({
           setName: identifyData.setName ?? f.setName,
           cardNumber: identifyData.cardNumber ?? f.cardNumber,
           year: identifyData.year ? String(identifyData.year) : f.year,
+          team: identifyData.team ?? f.team,
           rarity: identifyData.rarity ?? f.rarity,
           gradingCompany: identifyData.gradingCompany ?? f.gradingCompany,
           grade: identifyData.grade ?? f.grade,
@@ -390,10 +393,17 @@ export function AddCardForm({
                 key={c.id}
                 style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, fontSize: 13 }}
               >
-                <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.name}</span>
-                <button type="button" className="pill" onClick={() => undoAutoSaved(c.id)}>
-                  Undo
-                </button>
+                <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
+                  {c.name}
+                </span>
+                <div style={{ display: "flex", gap: 6, flex: "none" }}>
+                  <Link href={`/cards/${c.id}/edit`} className="pill">
+                    Edit
+                  </Link>
+                  <button type="button" className="pill" onClick={() => undoAutoSaved(c.id)}>
+                    Undo
+                  </button>
+                </div>
               </div>
             ))}
           </div>

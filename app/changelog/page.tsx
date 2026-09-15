@@ -2,6 +2,15 @@ import Link from "next/link";
 
 const ENTRIES: { date: string; title: string; items: string[] }[] = [
   {
+    date: "September 14, 2026",
+    title: "Real deck types for scanned cards, plus a few small fixes",
+    items: [
+      "Cards added by photo or camera scan now get their mana color (Magic) or elemental type (Pokémon) recognized, so deck \"Type breakdown\" actually reflects scanned cards instead of showing nothing — the biggest source of decks before this.",
+      "The card detail page now leads with the official pulled art (matching every other view in the app), with your own captured photo shown in a small gallery underneath when it's different from the official art.",
+      "Auto-saved cards now have an Edit button alongside Undo, so a wrong field doesn't mean hunting the card down later.",
+    ],
+  },
+  {
     date: "September 10, 2026",
     title: "Collection page, dashboard refresh, and scan Auto mode",
     items: [

@@ -13,6 +13,7 @@ type IdentifyResult = {
   thumbnailUrl: string | null;
   cardSightId: string | null;
   estimatedValue: number | null;
+  team: string | null;
 };
 
 type PricingRecord = { price: number; listing_type?: "auction" | "fixed" | null };
@@ -55,7 +56,7 @@ type CardSightCard = {
   setName?: string;
   year?: string | number;
   fields?: CardSightField[];
-  attributes?: unknown[];
+  attributes?: string[];
   grading?: { company?: string; grade?: string };
 };
 
@@ -65,6 +66,28 @@ function findFieldValue(card: CardSightCard | undefined, keyPattern: RegExp): st
   const field = card?.fields?.find((f) => keyPattern.test(f?.key ?? ""));
   if (field?.value != null) return String(field.value);
   return null;
+}
+
+// CardSight puts MTG's color identity in a plain field, in the same raw-letter
+// format (e.g. "R", "W, U") Scryfall's color_identity already gives us via the
+// manual-lookup path — mtgColorLabel() in lib/deckTypeBreakdown.ts parses this
+// directly. Empty/missing means colorless.
+function mtgColorIdentityOf(card: CardSightCard | undefined): string | null {
+  return findFieldValue(card, /^COLOR_IDENTITY$/i);
+}
+
+// Confirmed live against a real identify response: CardSight doesn't expose a
+// clean "type" field for Pokémon, but tags the elemental type(s) as
+// "pokemon-<type>" entries in `attributes` (e.g. "pokemon-fire" alongside
+// "pokemon-ex", "pokemon-hyper-rare", etc.) — filter to the real type names.
+const POKEMON_TYPES = ["grass", "fire", "water", "lightning", "psychic", "fighting", "darkness", "metal", "fairy", "dragon", "colorless"];
+
+function pokemonTypesOf(card: CardSightCard | undefined): string | null {
+  const types = (card?.attributes ?? [])
+    .map((a) => a.match(/^pokemon-(.+)$/i)?.[1]?.toLowerCase())
+    .filter((t): t is string => !!t && POKEMON_TYPES.includes(t))
+    .map((t) => t[0].toUpperCase() + t.slice(1));
+  return types.length ? types.join(", ") : null;
 }
 
 // Fetches CardSight's own official card art and re-hosts it on our Blob storage
@@ -172,5 +195,6 @@ export async function identifyCardImage(
     thumbnailUrl,
     cardSightId: card?.id ?? null,
     estimatedValue,
+    team: segment === "mtg" ? mtgColorIdentityOf(card) : segment === "pokemon" ? pokemonTypesOf(card) : null,
   };
 }

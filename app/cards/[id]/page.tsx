@@ -18,6 +18,13 @@ export default async function CardDetailPage({ params }: { params: { id: string 
 
   const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
 
+  const heroImage = card.thumbnailUrl ?? card.imageUrl;
+  // A captured/uploaded photo only earns its own gallery entry when it's
+  // genuinely distinct from the official art now shown as the hero — manual
+  // lookups have thumbnailUrl === imageUrl (the same official image reused
+  // for both), so no redundant gallery shows for those.
+  const showGallery = !!card.thumbnailUrl && !!card.imageUrl && card.imageUrl !== card.thumbnailUrl;
+
   const fields: [string, string][] = [
     ["Category", card.category],
     ["Set / Product", card.setName ?? "—"],
@@ -49,12 +56,24 @@ export default async function CardDetailPage({ params }: { params: { id: string 
       </div>
 
       <div className="page-pad" style={{ display: "flex", gap: 32, alignItems: "flex-start", flexWrap: "wrap" }}>
-        <div className="card-photo" style={{ width: 220, aspectRatio: "5/7", flex: "none" }}>
-          {card.imageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={card.imageUrl} alt={card.name} loading="lazy" decoding="async" />
-          ) : (
-            <span className="card-photo-label">CARD PHOTO</span>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, flex: "none" }}>
+          <div className="card-photo" style={{ width: 220, aspectRatio: "5/7" }}>
+            {heroImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={heroImage} alt={card.name} loading="lazy" decoding="async" />
+            ) : (
+              <span className="card-photo-label">CARD PHOTO</span>
+            )}
+          </div>
+
+          {showGallery && (
+            <div>
+              <div style={{ fontSize: 11, color: "var(--text-soft)", marginBottom: 6 }}>Your photo</div>
+              <div className="card-photo" style={{ width: 90, aspectRatio: "5/7" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={card.imageUrl!} alt={`${card.name} — your photo`} loading="lazy" decoding="async" />
+              </div>
+            </div>
           )}
         </div>
 
