@@ -98,7 +98,7 @@ export function CardGridOrList({
           )}
         </p>
       ) : view === "grid" ? (
-        <div className="grid grid-3">
+        <div className="grid grid-5">
           {cards.map((c) => (
             <Link key={c.id} href={`/cards/${c.id}`} className="tile" style={{ padding: 12, gap: 8 }}>
               <div className="card-photo">

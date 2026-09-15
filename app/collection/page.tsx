@@ -8,7 +8,7 @@ import { CollectionControls } from "@/components/CollectionControls";
 import { IconPlus } from "@/components/icons";
 import { CardCategory, CardCondition, Prisma } from "@prisma/client";
 
-const PAGE_SIZE = 24;
+const PAGE_SIZE = 25;
 
 const CATEGORIES = [
   { value: "all", label: "All games" },

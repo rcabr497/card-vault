@@ -2,6 +2,11 @@ import Link from "next/link";
 
 const ENTRIES: { date: string; title: string; items: string[] }[] = [
   {
+    date: "September 15, 2026",
+    title: "Collection page now shows 5 columns on desktop",
+    items: ["The Collection grid went from 3 to 5 columns on desktop, matching the density of other grids in the app."],
+  },
+  {
     date: "September 14, 2026",
     title: "Real deck types for scanned cards, plus a few small fixes",
     items: [
