@@ -6,6 +6,8 @@ import { formatMoney } from "@/lib/stats";
 import { AppShell } from "@/components/AppShell";
 import { RefreshPrice } from "@/components/RefreshPrice";
 import { DeleteCardButton } from "@/components/DeleteCardButton";
+import { CardDataLoader } from "@/components/CardDataLoader";
+import { parseCardDetails, presentCardDetails } from "@/lib/cardDetails";
 
 export default async function CardDetailPage({ params }: { params: { id: string } }) {
   const session = await auth();
@@ -24,6 +26,12 @@ export default async function CardDetailPage({ params }: { params: { id: string 
   // lookups have thumbnailUrl === imageUrl (the same official image reused
   // for both), so no redundant gallery shows for those.
   const showGallery = !!card.thumbnailUrl && !!card.imageUrl && card.imageUrl !== card.thumbnailUrl;
+
+  const details = parseCardDetails(card.metadataJson);
+  const presented = details ? presentCardDetails(details, card.category) : null;
+  // Scanned cards from before we kept the provider's full record get it fetched
+  // once, on first view.
+  const needsDetails = !details && !!card.cardSightId;
 
   const fields: [string, string][] = [
     ["Category", card.category],
@@ -106,6 +114,66 @@ export default async function CardDetailPage({ params }: { params: { id: string 
             </div>
           )}
         </div>
+
+        {(presented || needsDetails) && (
+          <div style={{ flexBasis: "100%", display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
+              <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 17, margin: 0 }}>Card data</h2>
+              {presented && (
+                <span style={{ fontSize: 12, color: "var(--text-soft)" }}>
+                  From {presented.sourceLabel} ·{" "}
+                  {new Date(presented.fetchedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                </span>
+              )}
+              {details?.source === "cardsight" && <CardDataLoader cardId={card.id} auto={false} />}
+              {needsDetails && <CardDataLoader cardId={card.id} auto />}
+            </div>
+
+            {presented && presented.sections.length > 0 && (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
+                {presented.sections.map((s) => (
+                  <div key={s.title} className="surface-card" style={{ padding: 16, minWidth: 0 }}>
+                    <div style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 10 }}>{s.title}</div>
+                    <dl
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "auto 1fr",
+                        gap: "6px 16px",
+                        margin: 0,
+                        ...(s.scroll ? { maxHeight: 260, overflowY: "auto" } : {}),
+                      }}
+                    >
+                      {s.rows.map((r, i) => (
+                        <div key={`${r.label}-${i}`} style={{ display: "contents" }}>
+                          <dt style={{ fontSize: 12, color: "var(--text-soft)" }}>{r.label}</dt>
+                          <dd style={{ fontSize: 13, margin: 0, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{r.value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {presented && presented.raw.length > 0 && (
+              <details className="surface-card" style={{ padding: 16 }}>
+                <summary style={{ fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>
+                  All raw fields ({presented.raw.length})
+                </summary>
+                <dl style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "6px 16px", margin: "12px 0 0" }}>
+                  {presented.raw.map((r, i) => (
+                    <div key={`${r.label}-${i}`} style={{ display: "contents" }}>
+                      <dt style={{ fontSize: 11.5, color: "var(--text-soft)", fontFamily: "monospace", overflowWrap: "anywhere" }}>
+                        {r.label}
+                      </dt>
+                      <dd style={{ fontSize: 12.5, margin: 0, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{r.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </details>
+            )}
+          </div>
+        )}
       </div>
     </AppShell>
   );

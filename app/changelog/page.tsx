@@ -2,6 +2,15 @@ import Link from "next/link";
 
 const ENTRIES: { date: string; title: string; items: string[] }[] = [
   {
+    date: "September 20, 2026",
+    title: "Full card data on the card page",
+    items: [
+      "The card page now has a \"Card data\" section showing everything we know about the card, laid out for its game — Magic (rules text, mana cost, color identity, format legality), Pokémon (HP, type, weakness, retreat cost, attacks, set size, legality), and sports (product info plus every parallel with its print run, like Gold /2024 or Black /73).",
+      "Cards you scanned before this update fill in automatically the first time you open them. Cards added by name lookup also keep their prices, finishes, and attack lists.",
+      "An \"All raw fields\" list at the bottom shows every last piece of data, and a Refresh data button re-pulls it.",
+    ],
+  },
+  {
     date: "September 15, 2026",
     title: "Collection page now shows 5 columns on desktop",
     items: ["The Collection grid went from 3 to 5 columns on desktop, matching the density of other grids in the app."],

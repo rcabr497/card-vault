@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { CameraCapture } from "./CameraCapture";
+import type { CardDetails } from "@/lib/cardDetails";
 import { IconUpload } from "./icons";
 
 type Mode = "manual" | "upload" | "camera";
@@ -35,6 +36,9 @@ type Fields = {
   imageUrl: string;
   thumbnailUrl: string;
   cardSightId: string;
+  // The provider's full record from a name lookup (Scryfall / Pokémon TCG), saved
+  // with the card. Scanned cards leave this null — CardSight's is fetched on view.
+  metadataJson: CardDetails | null;
 };
 
 function emptyFields(defaultCategory: string): Fields {
@@ -56,6 +60,7 @@ function emptyFields(defaultCategory: string): Fields {
     imageUrl: "",
     thumbnailUrl: "",
     cardSightId: "",
+    metadataJson: null,
   };
 }
 
@@ -119,6 +124,7 @@ export function AddCardForm({
       const res = await fetch(`/api/cards/lookup-name?name=${encodeURIComponent(fields.name)}`);
       const data = await res.json();
       if (data.found === false) {
+        setFields((f) => ({ ...f, metadataJson: null }));
         setStatus("No match found — enter the rest of the details manually.");
       } else {
         setFields((f) => ({
@@ -135,6 +141,7 @@ export function AddCardForm({
           // it finds serves as both the detail-page image and the tile thumbnail.
           thumbnailUrl: data.imageUrl ?? f.thumbnailUrl,
           currentValue: typeof data.estimatedValue === "number" ? String(data.estimatedValue) : f.currentValue,
+          metadataJson: data.details ?? null,
         }));
         const detected = CATEGORIES.find((c) => c.value === data.category)?.label ?? data.category;
         setStatus(
@@ -236,6 +243,7 @@ export function AddCardForm({
           cardSightId: identifyData.cardSightId ?? f.cardSightId,
           currentValue:
             typeof identifyData.estimatedValue === "number" ? String(identifyData.estimatedValue) : f.currentValue,
+          metadataJson: null,
         }));
         const confidenceLabel = identifyData.confidence ?? "unknown";
         setStatus(

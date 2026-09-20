@@ -1,4 +1,5 @@
 import { put } from "@vercel/blob";
+import { POKEMON_TYPES, type CardDetails } from "./cardDetails";
 
 type IdentifyResult = {
   name: string | null;
@@ -48,6 +49,46 @@ export async function fetchCardSightPrice(cardId: string, apiKey: string): Promi
   }
 }
 
+// The full catalog record for a card CardSight has already identified — the same
+// rich record a scan returns (rules text, fields, tags), plus, for sports cards,
+// the league-team tag and the list of parallels with their print runs. Used to
+// show everything we know about a card, and to backfill cards scanned before we
+// kept any of it. Returns null on any failure (including CardSight's rate limit).
+export async function fetchCardSightDetails(cardId: string, apiKey: string): Promise<CardDetails | null> {
+  try {
+    const res = await fetch(`${BASE_URL}/v1/catalog/cards/${cardId}`, {
+      headers: { "X-API-Key": apiKey },
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+
+    const d = await res.json();
+    if (!d?.id) return null;
+
+    return {
+      v: 1,
+      source: "cardsight",
+      fetchedAt: new Date().toISOString(),
+      data: {
+        name: d.name ?? null,
+        number: d.number ?? null,
+        setName: d.setName ?? null,
+        releaseName: d.releaseName ?? null,
+        releaseYear: d.releaseYear ?? null,
+        description: d.description ?? null,
+        attributes: Array.isArray(d.attributes) ? d.attributes : [],
+        fields: Array.isArray(d.fields) ? d.fields : [],
+        parallelCount: d.parallelCount ?? 0,
+        parallels: Array.isArray(d.parallels)
+          ? d.parallels.map((p: { name?: string; numberedTo?: number }) => ({ name: p.name, numberedTo: p.numberedTo }))
+          : [],
+      },
+    };
+  } catch {
+    return null;
+  }
+}
+
 type CardSightField = { key?: string; value?: unknown };
 type CardSightCard = {
   id?: string;
@@ -80,8 +121,6 @@ function mtgColorIdentityOf(card: CardSightCard | undefined): string | null {
 // clean "type" field for Pokémon, but tags the elemental type(s) as
 // "pokemon-<type>" entries in `attributes` (e.g. "pokemon-fire" alongside
 // "pokemon-ex", "pokemon-hyper-rare", etc.) — filter to the real type names.
-const POKEMON_TYPES = ["grass", "fire", "water", "lightning", "psychic", "fighting", "darkness", "metal", "fairy", "dragon", "colorless"];
-
 function pokemonTypesOf(card: CardSightCard | undefined): string | null {
   const types = (card?.attributes ?? [])
     .map((a) => a.match(/^pokemon-(.+)$/i)?.[1]?.toLowerCase())

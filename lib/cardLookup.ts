@@ -1,3 +1,25 @@
+import type { CardDetails } from "./cardDetails";
+
+// Keep just these keys of a provider's record — enough to show everything useful
+// about the card without storing image URLs, purchase links, and other noise.
+function pick(record: Record<string, unknown>, keys: string[]): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const k of keys) if (record[k] !== undefined && record[k] !== null) out[k] = record[k];
+  return out;
+}
+
+const POKEMON_TCG_KEYS = [
+  "hp", "supertype", "subtypes", "types", "evolvesFrom", "evolvesTo", "abilities", "attacks", "weaknesses",
+  "resistances", "retreatCost", "rules", "flavorText", "artist", "rarity", "number", "nationalPokedexNumbers",
+  "legalities",
+];
+
+const SCRYFALL_KEYS = [
+  "oracle_text", "mana_cost", "cmc", "type_line", "colors", "color_identity", "power", "toughness", "loyalty",
+  "keywords", "legalities", "finishes", "artist", "flavor_text", "rarity", "set_name", "set", "collector_number",
+  "released_at", "edhrec_rank", "reserved", "prices", "border_color", "lang",
+];
+
 type LookupResult = {
   category: "pokemon" | "mtg";
   name: string;
@@ -8,6 +30,7 @@ type LookupResult = {
   team: string | null;
   imageUrl: string | null;
   estimatedValue: number | null;
+  details: CardDetails;
 };
 
 async function searchPokemon(name: string): Promise<LookupResult | null> {
@@ -41,6 +64,17 @@ async function searchPokemon(name: string): Promise<LookupResult | null> {
     team: Array.isArray(card.types) ? card.types.join(", ") : null,
     imageUrl: card.images?.large ?? null,
     estimatedValue: typeof marketPrice === "number" ? marketPrice : null,
+    details: {
+      v: 1,
+      source: "pokemontcg",
+      fetchedAt: new Date().toISOString(),
+      data: {
+        ...pick(card, POKEMON_TCG_KEYS),
+        set: card.set ? pick(card.set, ["name", "series", "printedTotal", "total", "ptcgoCode", "releaseDate"]) : undefined,
+        tcgplayer: card.tcgplayer?.prices ? { prices: card.tcgplayer.prices } : undefined,
+        cardmarket: card.cardmarket?.prices ? { prices: card.cardmarket.prices } : undefined,
+      },
+    },
   };
 }
 
@@ -63,6 +97,20 @@ async function searchScryfall(name: string): Promise<LookupResult | null> {
     team: Array.isArray(card.color_identity) ? card.color_identity.join(", ") : null,
     imageUrl,
     estimatedValue: usdPrice !== null && !Number.isNaN(usdPrice) ? usdPrice : null,
+    details: {
+      v: 1,
+      source: "scryfall",
+      fetchedAt: new Date().toISOString(),
+      data: {
+        ...pick(card, SCRYFALL_KEYS),
+        // Two-faced cards keep their rules text on each face.
+        card_faces: Array.isArray(card.card_faces)
+          ? card.card_faces.map((f: Record<string, unknown>) =>
+              pick(f, ["name", "mana_cost", "type_line", "oracle_text", "power", "toughness", "loyalty"])
+            )
+          : undefined,
+      },
+    },
   };
 }
 
