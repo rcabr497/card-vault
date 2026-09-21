@@ -87,7 +87,7 @@ export default async function DashboardPage() {
                 <p style={{ fontSize: 13.5, color: "var(--text-soft)" }}>Nothing logged yet.</p>
               )}
               {recent.map((c) => (
-                <Link key={c.id} href={`/cards/${c.id}`} className="tile" style={{ padding: 10, gap: 8 }}>
+                <Link key={c.id} href={`/cards/${c.id}?from=/dashboard`} className="tile" style={{ padding: 10, gap: 8 }}>
                   <div className="card-photo">
                     {c.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element

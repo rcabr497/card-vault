@@ -2,6 +2,17 @@ import Link from "next/link";
 
 const ENTRIES: { date: string; title: string; items: string[] }[] = [
   {
+    date: "September 21, 2026",
+    title: "A cleaner, easier-to-read card page",
+    items: [
+      "The card page now leads with the current value, hides fields that are empty, and no longer repeats the set, number, or year in the Card data section.",
+      "Rules text, attacks, and parallels come first in Card data. Format legality shows as chips, lit up for the formats a card is legal in.",
+      "Long parallel lists show the first 8, with a Show all button for the rest. Magic mana costs and rules text now show real mana symbols.",
+      "Tap any card image to see it full-size. Text on the page is larger, and older cards show a placeholder instead of the page jumping while their data loads.",
+      "The back link and sidebar now match where you came from — collection, binder, deck, or dashboard.",
+    ],
+  },
+  {
     date: "September 20, 2026",
     title: "Full card data on the card page",
     items: [

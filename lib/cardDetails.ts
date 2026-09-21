@@ -11,8 +11,19 @@ export type CardDetails = {
   data: Record<string, unknown>;
 };
 
-export type DetailRow = { label: string; value: string };
-export type DetailSection = { title: string; rows: DetailRow[]; scroll?: boolean };
+// mana: the value contains Magic mana/tap symbols like {R} or {2}{U} to draw as icons.
+export type DetailRow = { label: string; value: string; mana?: boolean };
+export type DetailChip = { label: string; on: boolean };
+export type DetailSection = {
+  title: string;
+  rows: DetailRow[];
+  // What the card *is* (rules, attacks, parallels) — shown first and wider.
+  primary?: boolean;
+  // Yes/no lists such as format legality, drawn as chips instead of rows.
+  chips?: DetailChip[];
+  // Long lists show this many rows, with the rest behind a "Show all" toggle.
+  collapseAfter?: number;
+};
 export type PresentedDetails = {
   sourceLabel: string;
   fetchedAt: string;
@@ -63,10 +74,13 @@ function text(v: unknown): string | null {
   return null;
 }
 
+// Rows whose text can hold mana symbols (Magic cost, rules/oracle text).
+const MANA_LABELS = new Set(["Mana cost", "Rules text"]);
+
 function rows(pairs: [string, unknown][]): DetailRow[] {
   return pairs.flatMap(([label, v]) => {
     const value = text(v);
-    return value ? [{ label, value }] : [];
+    return value ? [{ label, value, ...(MANA_LABELS.has(label) ? { mana: true } : {}) }] : [];
   });
 }
 
@@ -98,8 +112,15 @@ function colorNames(raw: string | string[]): string {
   return letters.length ? letters.map((l) => MTG_COLOR_NAMES[l]).join(", ") : "Colorless";
 }
 
-function section(sections: DetailSection[], title: string, sectionRows: DetailRow[], extra?: { scroll?: boolean }) {
-  if (sectionRows.length) sections.push({ title, rows: sectionRows, ...extra });
+type SectionExtra = Pick<DetailSection, "primary" | "chips" | "collapseAfter">;
+
+function section(sections: DetailSection[], title: string, sectionRows: DetailRow[], extra?: SectionExtra) {
+  if (sectionRows.length || extra?.chips?.length) sections.push({ title, rows: sectionRows, ...extra });
+}
+
+// Legality as chips: every listed format, lit when the card is legal in it.
+function legalityChips(entries: [string, boolean][]): DetailChip[] {
+  return entries.map(([label, on]) => ({ label, on }));
 }
 
 // --- CardSight -------------------------------------------------------------
@@ -132,7 +153,9 @@ function presentCardSight(data: Data, category: string): DetailSection[] {
   const legal = (prefix: string) => attrs.filter((a) => a.startsWith(prefix)).map((a) => titleCase(a.slice(prefix.length)));
 
   if (kind === "mtg") {
-    section(sections, "Rules", rows([["Type line", f.TYPE_LINE], ["Rules text", description], ["Flavor text", f.FLAVOR_TEXT]]));
+    section(sections, "Rules", rows([["Type line", f.TYPE_LINE], ["Rules text", description], ["Flavor text", f.FLAVOR_TEXT]]), {
+      primary: true,
+    });
     section(
       sections,
       "Cost & colors",
@@ -156,7 +179,7 @@ function presentCardSight(data: Data, category: string): DetailSection[] {
         ["Language", f.LANGUAGE],
       ])
     );
-    section(sections, "Format legality", rows([["Legal in", legal("mtg-legal-").join(", ")]]));
+    section(sections, "Format legality", [], { chips: legalityChips(legal("mtg-legal-").map((l) => [l, true])) });
     section(
       sections,
       "Card tags",
@@ -176,9 +199,10 @@ function presentCardSight(data: Data, category: string): DetailSection[] {
     section(
       sections,
       "Battle",
-      rows([["Type", types], ["HP", f.HP], ["Weakness", f.WEAKNESS], ["Retreat cost", f.RETREAT_COST], ["Card tags", tags]])
+      rows([["Type", types], ["HP", f.HP], ["Weakness", f.WEAKNESS], ["Retreat cost", f.RETREAT_COST], ["Card tags", tags]]),
+      { primary: true }
     );
-    section(sections, "Rules / attacks", rows([["Text", description]]));
+    section(sections, "Rules / attacks", rows([["Text", description]]), { primary: true });
     section(sections, "Evolution & Pokédex", rows([["Evolves from", f.EVOLVES_FROM], ["Pokédex #", f.POKEDEX_NUMBER]]));
     section(
       sections,
@@ -196,7 +220,7 @@ function presentCardSight(data: Data, category: string): DetailSection[] {
         ["Language", f.LANGUAGE],
       ])
     );
-    section(sections, "Format legality", rows([["Legal in", legal("pokemon-legal-").join(", ")]]));
+    section(sections, "Format legality", [], { chips: legalityChips(legal("pokemon-legal-").map((l) => [l, true])) });
   } else {
     // Sports: the catalog record is mostly product info, a league-team tag
     // (e.g. "MLB-LAA"), and the list of parallels with their print runs.
@@ -229,7 +253,7 @@ function presentCardSight(data: Data, category: string): DetailSection[] {
           label: text(p.name) ?? "Parallel",
           value: typeof p.numberedTo === "number" ? `/${p.numberedTo}` : "Unnumbered",
         })),
-        { scroll: true }
+        { primary: true, collapseAfter: 8 }
       );
     }
   }
@@ -266,7 +290,8 @@ function presentScryfall(d: Data): DetailSection[] {
       ["Loyalty", d.loyalty],
       ["Keywords", asStrings(d.keywords).join(", ")],
       ["Flavor text", d.flavor_text],
-    ])
+    ]),
+    { primary: true }
   );
   section(
     sections,
@@ -306,19 +331,9 @@ function presentScryfall(d: Data): DetailSection[] {
       ["MTGO tix", prices.tix],
     ])
   );
-  section(
-    sections,
-    "Format legality",
-    rows([
-      [
-        "Legal in",
-        Object.entries(legalities)
-          .filter(([, v]) => v === "legal")
-          .map(([k]) => titleCase(k))
-          .join(", "),
-      ],
-    ])
-  );
+  section(sections, "Format legality", [], {
+    chips: legalityChips(Object.entries(legalities).map(([k, v]) => [titleCase(k), v === "legal" || v === "restricted"])),
+  });
   return sections;
 }
 
@@ -346,7 +361,8 @@ function presentPokemonTcg(d: Data): DetailSection[] {
       ["Weakness", pair(asObjects(d.weaknesses))],
       ["Resistance", pair(asObjects(d.resistances))],
       ["Retreat cost", retreat.length ? `${retreat.length} (${retreat.join(", ")})` : null],
-    ])
+    ]),
+    { primary: true }
   );
   section(
     sections,
@@ -354,7 +370,8 @@ function presentPokemonTcg(d: Data): DetailSection[] {
     asObjects(d.abilities).flatMap((a) => {
       const value = text(a.text);
       return value ? [{ label: [text(a.name), text(a.type) && `(${text(a.type)})`].filter(Boolean).join(" "), value }] : [];
-    })
+    }),
+    { primary: true }
   );
   section(
     sections,
@@ -365,9 +382,12 @@ function presentPokemonTcg(d: Data): DetailSection[] {
         label: [text(a.name), cost.length ? `[${cost.join(", ")}]` : null].filter(Boolean).join(" ") || "Attack",
         value: [text(a.damage), text(a.text)].filter(Boolean).join(" — ") || "—",
       };
-    })
+    }),
+    { primary: true }
   );
-  section(sections, "Rules & flavor", rows([["Rules", asStrings(d.rules).join("\n")], ["Flavor text", d.flavorText]]));
+  section(sections, "Rules & flavor", rows([["Rules", asStrings(d.rules).join("\n")], ["Flavor text", d.flavorText]]), {
+    primary: true,
+  });
   section(
     sections,
     "Evolution & Pokédex",
@@ -407,13 +427,9 @@ function presentPokemonTcg(d: Data): DetailSection[] {
       ]),
     ]
   );
-  section(
-    sections,
-    "Format legality",
-    rows(
-      Object.entries(legalities).map(([format, status]): [string, unknown] => [titleCase(format), status])
-    )
-  );
+  section(sections, "Format legality", [], {
+    chips: legalityChips(Object.entries(legalities).map(([format, status]) => [titleCase(format), text(status)?.toLowerCase() === "legal"])),
+  });
   return sections;
 }
 
@@ -453,13 +469,35 @@ function rawSource(details: CardDetails): Data {
 
 // --- entry point -----------------------------------------------------------
 
-export function presentCardDetails(details: CardDetails, category: string): PresentedDetails {
-  const sections =
+// Rows that just repeat what the card's own record already shows at the top of
+// the page (set, number, year, rarity...). Dropped only when the values match.
+const DEDUPE_LABELS = new Set(["Set", "Product", "Card #", "Year", "Rarity"]);
+
+function dropKnown(sections: DetailSection[], known: Set<string>): DetailSection[] {
+  return sections
+    .map((s) => ({ ...s, rows: s.rows.filter((r) => !(DEDUPE_LABELS.has(r.label) && known.has(r.value.trim().toLowerCase()))) }))
+    .filter((s) => s.rows.length > 0 || (s.chips?.length ?? 0) > 0);
+}
+
+// Primary sections (rules, attacks, parallels) first; order is otherwise kept.
+function primaryFirst(sections: DetailSection[]): DetailSection[] {
+  return [...sections.filter((s) => s.primary), ...sections.filter((s) => !s.primary)];
+}
+
+export function presentCardDetails(
+  details: CardDetails,
+  category: string,
+  // The card's own stored values, so provider rows that only repeat them can be dropped.
+  known: (string | number | null | undefined)[] = []
+): PresentedDetails {
+  const knownSet = new Set(known.filter((k) => k !== null && k !== undefined && String(k).trim() !== "").map((k) => String(k).trim().toLowerCase()));
+  const built =
     details.source === "cardsight"
       ? presentCardSight(details.data, category)
       : details.source === "scryfall"
         ? presentScryfall(details.data)
         : presentPokemonTcg(details.data);
+  const sections = primaryFirst(dropKnown(built, knownSet));
 
   const raw: DetailRow[] = [];
   flatten(rawSource(details), "", raw);

@@ -737,3 +737,144 @@ select.input {
     font-size: 32px;
   }
 }
+
+/* --- card page: data sections, chips, zoom, skeleton, mana symbols --- */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.chip {
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-soft);
+  opacity: 0.75;
+}
+.chip-on {
+  background: var(--accent3-light);
+  color: var(--accent3-ink);
+  opacity: 1;
+}
+
+.zoom-trigger {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: zoom-in;
+}
+.zoom-trigger img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.zoom-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(20, 17, 13, 0.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  cursor: zoom-out;
+}
+.zoom-overlay img {
+  max-width: min(92vw, 640px);
+  max-height: 90vh;
+  border-radius: 10px;
+  box-shadow: var(--shadow-md);
+  cursor: default;
+}
+.zoom-close {
+  position: absolute;
+  top: calc(16px + env(safe-area-inset-top, 0px));
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: none;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap: 16px;
+}
+.skeleton-card {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 130px;
+}
+.skeleton-line {
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--surface) 25%, var(--divider) 50%, var(--surface) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+@keyframes skeleton-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-line {
+    animation: none;
+  }
+}
+
+/* Magic mana / tap symbols (canonical MTG colors) */
+.mana {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.35em;
+  height: 1.35em;
+  padding: 0 0.3em;
+  margin: 0 1px;
+  border-radius: 999px;
+  font-size: 0.78em;
+  font-weight: 800;
+  line-height: 1;
+  vertical-align: middle;
+  color: #2b2620;
+  background: #cbc2c0;
+}
+.mana-w {
+  background: #f8f6d8;
+}
+.mana-u {
+  background: #b3ceea;
+}
+.mana-b {
+  background: #a69f9d;
+}
+.mana-r {
+  background: #eb9f82;
+}
+.mana-g {
+  background: #a3c095;
+}
+.mana-hybrid {
+  background: linear-gradient(135deg, #f8f6d8 0 50%, #b3ceea 50% 100%);
+}
