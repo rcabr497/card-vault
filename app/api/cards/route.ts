@@ -11,6 +11,7 @@ export async function POST(req: Request) {
 
   const body = await req.json().catch(() => null);
   const binderId = typeof body?.binderId === "string" ? body.binderId : "";
+  const deckId = typeof body?.deckId === "string" ? body.deckId : "";
   const name = typeof body?.name === "string" ? body.name.trim() : "";
   const category = typeof body?.category === "string" ? body.category : "";
 
@@ -25,10 +26,19 @@ export async function POST(req: Request) {
     }
   }
 
+  if (deckId) {
+    const deck = await prisma.deck.findFirst({ where: { id: deckId, userId: session.user.id } });
+    if (!deck) {
+      return NextResponse.json({ error: "Deck not found." }, { status: 404 });
+    }
+  }
+
   const condition =
     typeof body?.condition === "string" && Object.values(CardCondition).includes(body.condition as CardCondition)
       ? (body.condition as CardCondition)
       : CardCondition.NM;
+
+  const quantity = body?.quantity ? Math.max(1, Number(body.quantity)) : 1;
 
   const card = await prisma.card.create({
     data: {
@@ -43,7 +53,7 @@ export async function POST(req: Request) {
       condition,
       gradingCompany: body?.gradingCompany || null,
       grade: body?.grade || null,
-      quantity: body?.quantity ? Math.max(1, Number(body.quantity)) : 1,
+      quantity,
       purchasePrice: body?.purchasePrice ? Number(body.purchasePrice) : null,
       currentValue: body?.currentValue ? Number(body.currentValue) : null,
       imageUrl: body?.imageUrl || null,
@@ -52,6 +62,7 @@ export async function POST(req: Request) {
       notes: body?.notes || null,
       metadataJson: body?.metadataJson ? JSON.stringify(body.metadataJson) : null,
       ...(binderId ? { binderCards: { create: { binderId } } } : {}),
+      ...(deckId ? { deckCards: { create: { deckId, quantity } } } : {}),
     },
   });
 

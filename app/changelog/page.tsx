@@ -2,6 +2,15 @@ import Link from "next/link";
 
 const ENTRIES: { date: string; title: string; items: string[] }[] = [
   {
+    date: "September 25, 2026",
+    title: "Add brand-new cards straight to a deck",
+    items: [
+      "Decks now have a New card button that opens the same Add Card experience as binders and your collection — type a name, upload a photo, or use the camera, including Auto mode.",
+      "The card is saved to your collection and added to the deck in one step. The old picker is now called Add from collection.",
+      "The New Deck page points you there, so you can create a deck first and add cards that aren't in your collection yet.",
+    ],
+  },
+  {
     date: "September 21, 2026",
     title: "A cleaner, easier-to-read card page",
     items: [

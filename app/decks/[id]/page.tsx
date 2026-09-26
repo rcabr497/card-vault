@@ -8,7 +8,7 @@ import { DeckNotes } from "@/components/DeckNotes";
 import { DeckShareToggle } from "@/components/DeckShareToggle";
 import { AddCardToDeckDialog } from "@/components/AddCardToDeckDialog";
 import { DeleteDeckButton } from "@/components/DeleteDeckButton";
-import { IconChevronLeft, IconChevronRight } from "@/components/icons";
+import { IconChevronLeft, IconChevronRight, IconPlus } from "@/components/icons";
 import { computeTypeBreakdown } from "@/lib/deckTypeBreakdown";
 
 const PAGE_SIZE = 15;
@@ -65,6 +65,10 @@ export default async function DeckDetailPage({
         </div>
         <div className="topbar-actions">
           <DeckShareToggle deckId={deck.id} initialShared={deck.isShared} initialSlug={deck.shareSlug} />
+          <Link href={`/decks/${deck.id}/add`} className="btn btn-primary">
+            <IconPlus />
+            New card
+          </Link>
           <AddCardToDeckDialog deckId={deck.id} cards={allUserCards} />
           <DeleteDeckButton deckId={deck.id} />
         </div>
@@ -73,7 +77,10 @@ export default async function DeckDetailPage({
       <div className="grid deck-cols" style={{ gridTemplateColumns: "1fr 300px", gap: 0 }}>
         <div className="page-pad">
           {pageItems.length === 0 ? (
-            <p style={{ fontSize: 13.5, color: "var(--text-soft)" }}>No cards in this deck yet.</p>
+            <p style={{ fontSize: 13.5, color: "var(--text-soft)" }}>
+              No cards in this deck yet. Use <strong>New card</strong> to scan or look one up, or{" "}
+              <strong>Add from collection</strong> to pick cards you already own.
+            </p>
           ) : (
             <div className="grid grid-5">
               {pageItems.map((dc) => (

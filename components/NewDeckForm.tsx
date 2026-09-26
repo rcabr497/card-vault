@@ -110,6 +110,10 @@ export function NewDeckForm({ cards }: { cards: PickerCard[] }) {
         <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 15, marginBottom: 12 }}>
           Add cards
         </h2>
+        <p style={{ fontSize: 12.5, color: "var(--text-soft)", margin: "0 0 12px" }}>
+          Need a card that isn&apos;t in your collection yet? Create the deck, then use <strong>New card</strong> on the
+          deck page to scan or look one up.
+        </p>
         <DeckCardPicker cards={cards} selected={selected} onChange={setSelected} />
       </div>
 

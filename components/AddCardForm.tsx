@@ -71,8 +71,11 @@ export function AddCardForm({
   binderType,
   binderSport,
   binders,
+  deckId,
 }: {
   binderId?: string;
+  // When set, new cards are also added to this deck (and we return to it after saving).
+  deckId?: string;
   binderType?: string;
   binderSport?: string;
   binders?: BinderOption[];
@@ -267,7 +270,7 @@ export function AddCardForm({
       const res = await fetch("/api/cards", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...(explicit ?? fields), binderId: effectiveBinderId }),
+        body: JSON.stringify({ ...(explicit ?? fields), binderId: effectiveBinderId, deckId }),
       });
       const data = await res.json();
       setSaving(false);
@@ -287,7 +290,7 @@ export function AddCardForm({
     e.preventDefault();
     const { ok } = await saveCard();
     if (ok) {
-      router.push(effectiveBinderId ? `/binders/${effectiveBinderId}` : "/dashboard");
+      router.push(deckId ? `/decks/${deckId}` : effectiveBinderId ? `/binders/${effectiveBinderId}` : "/dashboard");
       router.refresh();
     }
   }

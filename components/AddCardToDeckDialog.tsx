@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { DeckCardPicker, type PickerCard } from "./DeckCardPicker";
-import { IconPlus } from "./icons";
 
 export function AddCardToDeckDialog({ deckId, cards }: { deckId: string; cards: PickerCard[] }) {
   const router = useRouter();
@@ -37,9 +36,8 @@ export function AddCardToDeckDialog({ deckId, cards }: { deckId: string; cards: 
 
   return (
     <>
-      <button type="button" className="btn btn-primary" onClick={() => setOpen(true)}>
-        <IconPlus />
-        Add Card
+      <button type="button" className="btn btn-secondary" onClick={() => setOpen(true)}>
+        Add from collection
       </button>
 
       {open && (
