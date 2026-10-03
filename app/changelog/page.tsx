@@ -2,6 +2,16 @@ import Link from "next/link";
 
 const ENTRIES: { date: string; title: string; items: string[] }[] = [
   {
+    date: "October 3, 2026",
+    title: "Deck check: is your deck legal?",
+    items: [
+      "Choose a Magic (Standard, Pioneer, Modern, Legacy, Vintage, Pauper, Commander) or Pokémon (Standard, Expanded, Unlimited) format for a deck, and its page checks it against that format's rules.",
+      "The check covers deck size, copies per card (basic lands and basic Energy excepted), banned and not-legal cards, Vintage's restricted list, and for Pokémon, a Basic Pokémon to start with plus the one-ACE SPEC and one-Radiant limits.",
+      "Cards that break a rule get a ! on the deck grid, and every problem links to the card. Cards with no saved format data are listed as unverified rather than guessed.",
+      "You can change a deck's format from its page, and formats Card Vault doesn't check (cube, kitchen table…) can still be typed in under Other.",
+    ],
+  },
+  {
     date: "October 2, 2026",
     title: "Easier to read, easier to tap",
     items: [

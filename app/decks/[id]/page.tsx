@@ -13,6 +13,10 @@ import { computeTypeBreakdown } from "@/lib/deckTypeBreakdown";
 import { teamLabel } from "@/lib/cardLabels";
 import { ActionsMenu } from "@/components/ActionsMenu";
 import { EmptyState } from "@/components/EmptyState";
+import { DeckCheckPanel } from "@/components/DeckCheckPanel";
+import { DeckFormatEditor } from "@/components/DeckFormatEditor";
+import { resolveFormat, type DeckGame } from "@/lib/deckFormats";
+import { checkDeck } from "@/lib/deckCheck";
 
 const PAGE_SIZE = 15;
 
@@ -48,6 +52,14 @@ export default async function DeckDetailPage({
 
   const typeBreakdown = computeTypeBreakdown(deck.deckCards);
 
+  const cardGames = deck.deckCards.map((dc) =>
+    dc.card.category === "mtg" || dc.card.category === "pokemon" ? (dc.card.category as DeckGame) : null
+  );
+  const format = resolveFormat(deck.format, cardGames);
+  const check = format ? checkDeck(format, deck.deckCards) : null;
+  const failCount = check?.items.filter((i) => i.status === "fail").length ?? 0;
+  const deckPath = `/decks/${deck.id}`;
+
   return (
     <AppShell active="decks" user={{ name: user.name ?? user.email, plan: user.plan }}>
       <div className="topbar">
@@ -58,8 +70,17 @@ export default async function DeckDetailPage({
           <div style={{ fontSize: 12, fontWeight: 700, color: "var(--accent-ink)", marginBottom: 6 }}>Deck</div>
           <h1 className="topbar-title">{deck.name}</h1>
           <div className="topbar-subtitle">
-            {totalCount} cards{deck.format ? ` · ${deck.format}` : ""} · {formatMoney(totalValue)} value
+            {totalCount} cards{deck.format ? ` · ${format?.label ?? deck.format}` : ""} · {formatMoney(totalValue)} value
           </div>
+          {check && (
+            <a href="#deck-check" className={`check-chip check-verdict-${check.verdict === "legal" ? "good" : check.verdict === "illegal" ? "bad" : "open"}`}>
+              {check.verdict === "legal"
+                ? "Legal"
+                : check.verdict === "illegal"
+                  ? `${failCount} ${failCount === 1 ? "rule problem" : "rule problems"}`
+                  : "Some cards unverified"}
+            </a>
+          )}
           {deck.originalOwnerName && (
             <div style={{ fontSize: 12, color: "var(--text-soft)", marginTop: 4 }}>
               Originally created by {deck.originalOwnerName}
@@ -92,11 +113,17 @@ export default async function DeckDetailPage({
               {pageItems.map((dc) => (
                 <Link
                   key={dc.cardId}
-                  href={`/cards/${dc.cardId}?from=${encodeURIComponent(`/decks/${deck.id}`)}`}
+                  href={`/cards/${dc.cardId}?from=${encodeURIComponent(deckPath)}`}
                   className="tile"
                   style={{ padding: 12, gap: 8, position: "relative" }}
                 >
                   <span className="qty-badge">x{dc.quantity}</span>
+                  {check?.flagged[dc.cardId] && (
+                    <span className="deck-flag" title={check.flagged[dc.cardId]}>
+                      <span aria-hidden="true">!</span>
+                      <span className="visually-hidden">{check.flagged[dc.cardId]}</span>
+                    </span>
+                  )}
                   <div className="card-photo">
                     {dc.card.thumbnailUrl ?? dc.card.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -144,6 +171,14 @@ export default async function DeckDetailPage({
         </div>
 
         <div style={{ padding: "0 28px 32px" }}>
+          <h2 id="deck-check" style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 15, margin: "0 0 12px", scrollMarginTop: 16 }}>
+            Deck check
+          </h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
+            <DeckCheckPanel result={check} formatText={deck.format} backTo={deckPath} />
+            <DeckFormatEditor deckId={deck.id} initialFormat={format?.label ?? deck.format ?? ""} />
+          </div>
+
           {typeBreakdown.length > 0 && (
             <>
               <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 15, margin: "0 0 16px" }}>

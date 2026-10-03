@@ -11,7 +11,7 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   const name = typeof body?.name === "string" ? body.name.trim() : "";
   const featuredImageUrl = typeof body?.featuredImageUrl === "string" ? body.featuredImageUrl : null;
-  const format = typeof body?.format === "string" ? body.format : null;
+  const format = typeof body?.format === "string" ? body.format.trim().slice(0, 60) || null : null;
   const cards: { cardId: string; quantity: number }[] = Array.isArray(body?.cards) ? body.cards : [];
 
   if (!name) {
