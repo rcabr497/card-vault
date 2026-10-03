@@ -82,13 +82,17 @@ model User {
   email        String    @unique
   passwordHash String
   plan         String    @default("free")
+  // Public trading identity (lowercase, unique). Null until the user picks one.
+  handle       String?   @unique
   createdAt    DateTime  @default(now())
 
-  accounts Account[]
-  sessions Session[]
-  binders  Binder[]
-  cards    Card[]
-  decks    Deck[]
+  accounts       Account[]
+  sessions       Session[]
+  binders        Binder[]
+  cards          Card[]
+  decks          Deck[]
+  tradesProposed Trade[]   @relation("TradeProposer")
+  tradesReceived Trade[]   @relation("TradeRecipient")
 }
 
 model Binder {
@@ -135,6 +139,7 @@ model Card {
   user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   deckCards   DeckCard[]
   binderCards BinderCard[]
+  tradeItems  TradeItem[]
 
   @@index([userId])
   @@index([name])
@@ -180,4 +185,68 @@ model DeckCard {
   card Card @relation(fields: [cardId], references: [id], onDelete: Cascade)
 
   @@id([deckId, cardId])
+}
+
+enum TradeStatus {
+  proposed
+  accepted
+  declined
+  cancelled
+  completed
+}
+
+// A trade between two users. Either side may give nothing (a gift), but at
+// least one card moves. Records only change hands when both people confirm.
+model Trade {
+  id                   String      @id @default(cuid())
+  proposerId           String
+  recipientId          String
+  status               TradeStatus @default(proposed)
+  // While "proposed": the user who has to respond. Null once accepted/closed.
+  awaitingUserId       String?
+  revision             Int         @default(1)
+  note                 String?
+  proposerConfirmedAt  DateTime?
+  recipientConfirmedAt DateTime?
+  expiresAt            DateTime
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+  completedAt          DateTime?
+
+  proposer  User        @relation("TradeProposer", fields: [proposerId], references: [id], onDelete: Cascade)
+  recipient User        @relation("TradeRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  items     TradeItem[]
+
+  @@index([proposerId])
+  @@index([recipientId])
+  @@index([status])
+}
+
+// One card (and how many copies) a user gives in a trade. The descriptive
+// fields are a snapshot so history still reads correctly after the card
+// moves to the other user or is deleted.
+model TradeItem {
+  id             String        @id @default(cuid())
+  tradeId        String
+  ownerId        String
+  cardId         String?
+  quantity       Int
+  name           String
+  category       CardCategory
+  setName        String?
+  cardNumber     String?
+  year           Int?
+  condition      CardCondition
+  gradingCompany String?
+  grade          String?
+  imageUrl       String?
+  thumbnailUrl   String?
+  currentValue   Decimal?      @db.Decimal(10, 2)
+
+  trade Trade @relation(fields: [tradeId], references: [id], onDelete: Cascade)
+  card  Card? @relation(fields: [cardId], references: [id], onDelete: SetNull)
+
+  @@index([tradeId])
+  @@index([cardId])
+  @@index([ownerId])
 }

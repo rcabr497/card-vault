@@ -2,6 +2,16 @@ import Link from "next/link";
 
 const ENTRIES: { date: string; title: string; items: string[] }[] = [
   {
+    date: "October 2, 2026",
+    title: "Trade cards with other collectors",
+    items: [
+      "New Trades page: pick a trading handle (the only name other traders see — never your name or email), then send an offer to anyone by their handle or by sharing your trade link.",
+      "Offer cards from your collection, or send them as a gift. The other person can accept, decline, or counter by adding cards from their own collection.",
+      "Once you both agree, swap the cards by mail or in person and each tap \"My part is done.\" Cards move between your collections only after you've both confirmed, and cards in an open trade are held so they can't be promised twice.",
+      "A badge on Trades shows when an offer is waiting on you. Offers expire after 14 days without a reply.",
+    ],
+  },
+  {
     date: "September 25, 2026",
     title: "Add brand-new cards straight to a deck",
     items: [

@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { AppShell } from "@/components/AppShell";
 import { PasswordForm } from "@/components/PasswordForm";
 import { SignOutButton } from "@/components/SignOutButton";
+import { HandleForm } from "@/components/HandleForm";
+import { TradeInviteLink } from "@/components/TradeInviteLink";
 
 export default async function ProfilePage() {
   const session = await auth();
@@ -21,6 +23,21 @@ export default async function ProfilePage() {
           <p style={{ fontSize: 13.5, color: "var(--text-soft)" }}>
             {user.name} · {user.email}
           </p>
+        </div>
+        <div>
+          <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 17, marginBottom: 6 }}>
+            Trading handle
+          </h2>
+          <p style={{ fontSize: 13.5, color: "var(--text-soft)", margin: "0 0 14px" }}>
+            Other collectors find and see you by this handle when trading. Your name and email stay private.
+          </p>
+          <HandleForm initial={user.handle} />
+          {user.handle && (
+            <div style={{ marginTop: 16 }}>
+              <div style={{ fontSize: 13, color: "var(--text-soft)", marginBottom: 6 }}>Your trade link</div>
+              <TradeInviteLink handle={user.handle} />
+            </div>
+          )}
         </div>
         <div>
           <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 17, marginBottom: 16 }}>

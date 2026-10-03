@@ -173,3 +173,11 @@ export function IconEdit({ size = 20 }: IconProps) {
     </svg>
   );
 }
+
+export function IconTrade({ size = 16 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 8h13l-3.5-3.5M20 16H7l3.5 3.5" />
+    </svg>
+  );
+}

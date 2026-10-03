@@ -878,3 +878,75 @@ select.input {
 .mana-hybrid {
   background: linear-gradient(135deg, #f8f6d8 0 50%, #b3ceea 50% 100%);
 }
+
+/* --- trades --- */
+.nav-badge {
+  margin-left: auto;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--accent2);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.trade-sides {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 16px;
+}
+.trade-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--divider);
+}
+.trade-item:first-child {
+  border-top: none;
+}
+.trade-status {
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-soft);
+  white-space: nowrap;
+}
+.trade-status-action {
+  background: var(--accent2-light);
+  color: var(--accent2-ink);
+}
+.trade-status-good {
+  background: var(--accent3-light);
+  color: var(--accent3-ink);
+}
+.trade-status-open {
+  background: var(--accent-light);
+  color: var(--accent-ink);
+}
+.trade-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-top: 1px solid var(--divider);
+  color: var(--text);
+  flex-wrap: wrap;
+}
+.trade-row:first-child {
+  border-top: none;
+}
+.trade-row:hover {
+  background: var(--bg);
+}
+.handle-input {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}

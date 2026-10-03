@@ -11,6 +11,10 @@ export default auth((req) => {
 
   if (!isLoggedIn || isExpiredShortSession) {
     const signupUrl = new URL("/signup", req.nextUrl.origin);
+    // Bring people back to the page they asked for (e.g. a trade invite link).
+    if (!req.nextUrl.pathname.startsWith("/api/")) {
+      signupUrl.searchParams.set("callbackUrl", req.nextUrl.pathname + req.nextUrl.search);
+    }
     return NextResponse.redirect(signupUrl);
   }
 });
@@ -23,6 +27,9 @@ export const config = {
     "/profile/:path*",
     "/cards/:path*",
     "/export/:path*",
+    "/trades/:path*",
+    "/api/trades/:path*",
+    "/api/profile/:path*",
     "/api/cards/:path*",
     "/api/upload/:path*",
     "/api/export/:path*",

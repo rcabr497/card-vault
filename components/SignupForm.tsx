@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
+import { safeCallbackUrl } from "@/lib/safeRedirect";
 
 export function SignupForm({ callbackUrl = "/dashboard" }: { callbackUrl?: string }) {
   const router = useRouter();
@@ -40,7 +41,7 @@ export function SignupForm({ callbackUrl = "/dashboard" }: { callbackUrl?: strin
         setSubmitting(false);
         return;
       }
-      router.push(callbackUrl);
+      router.push(safeCallbackUrl(callbackUrl));
       router.refresh();
     } catch {
       setError("Something went wrong. Please try again.");

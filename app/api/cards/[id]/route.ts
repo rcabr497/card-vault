@@ -2,6 +2,13 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { CardCategory, CardCondition, Prisma } from "@prisma/client";
+import { reservedQuantities } from "@/lib/trades";
+
+const IN_TRADE = "This card is part of an open trade. Cancel or finish the trade first.";
+
+async function reservedFor(cardId: string) {
+  return (await reservedQuantities(prisma, [cardId])).get(cardId) ?? 0;
+}
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   const session = await auth();
@@ -48,6 +55,13 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   }
   if ("quantity" in body) {
     data.quantity = body.quantity ? Math.max(1, Number(body.quantity)) : 1;
+    const reserved = await reservedFor(card.id);
+    if (data.quantity < reserved) {
+      return NextResponse.json(
+        { error: `${reserved} of these ${reserved === 1 ? "is" : "are"} promised in an open trade, so quantity can't go below ${reserved}.` },
+        { status: 409 }
+      );
+    }
   }
   if ("purchasePrice" in body) {
     data.purchasePrice = body.purchasePrice ? Number(body.purchasePrice) : null;
@@ -83,6 +97,10 @@ export async function DELETE(_req: Request, { params }: { params: { id: string }
   const card = await prisma.card.findFirst({ where: { id: params.id, userId: session.user.id } });
   if (!card) {
     return NextResponse.json({ error: "Card not found." }, { status: 404 });
+  }
+
+  if ((await reservedFor(card.id)) > 0) {
+    return NextResponse.json({ error: IN_TRADE }, { status: 409 });
   }
 
   await prisma.card.delete({ where: { id: card.id } });
