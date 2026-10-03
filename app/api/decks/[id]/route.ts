@@ -14,8 +14,9 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   }
 
   const body = await req.json().catch(() => null);
-  const data: { notes?: string; name?: string } = {};
+  const data: { notes?: string; name?: string; format?: string | null } = {};
   if (typeof body?.notes === "string") data.notes = body.notes;
+  if (body?.format === null || typeof body?.format === "string") data.format = body.format?.trim().slice(0, 60) || null;
   if (typeof body?.name === "string" && body.name.trim()) data.name = body.name.trim();
 
   await prisma.deck.update({ where: { id: deck.id }, data });

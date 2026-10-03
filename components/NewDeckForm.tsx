@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { DeckCardPicker, type PickerCard } from "./DeckCardPicker";
+import { DeckFormatField } from "./DeckFormatField";
 import { cropImageToRatio, TCG_CARD_RATIO } from "@/lib/imageCrop";
 import { IconUpload } from "./icons";
 
@@ -48,7 +49,7 @@ export function NewDeckForm({ cards }: { cards: PickerCard[] }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
-          format: format || null,
+          format: format.trim() || null,
           featuredImageUrl: imageUrl || null,
           cards: Object.entries(selected).map(([cardId, quantity]) => ({ cardId, quantity })),
         }),
@@ -100,8 +101,11 @@ export function NewDeckForm({ cards }: { cards: PickerCard[] }) {
             <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Charizard EX Build" required />
           </div>
           <div className="field">
-            <label>Format (optional)</label>
-            <input className="input" value={format} onChange={(e) => setFormat(e.target.value)} placeholder="Standard" />
+            <label htmlFor="deck-format">Format (optional)</label>
+            <DeckFormatField id="deck-format" value={format} onChange={setFormat} />
+            <span style={{ fontSize: 12, color: "var(--text-soft)" }}>
+              Pick a Magic or Pokémon format to check the deck against its rules.
+            </span>
           </div>
         </div>
       </div>
