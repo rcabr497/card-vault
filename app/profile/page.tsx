@@ -4,6 +4,7 @@ import { AppShell } from "@/components/AppShell";
 import { PasswordForm } from "@/components/PasswordForm";
 import { SignOutButton } from "@/components/SignOutButton";
 import { HandleForm } from "@/components/HandleForm";
+import { NameForm } from "@/components/NameForm";
 import { TradeInviteLink } from "@/components/TradeInviteLink";
 
 export default async function ProfilePage() {
@@ -20,9 +21,10 @@ export default async function ProfilePage() {
           <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 17, marginBottom: 16 }}>
             Account
           </h2>
-          <p style={{ fontSize: 13.5, color: "var(--text-soft)" }}>
-            {user.name} · {user.email}
-          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <NameForm initial={user.name ?? ""} />
+            <p style={{ fontSize: 13.5, color: "var(--text-soft)", margin: 0 }}>Email: {user.email}</p>
+          </div>
         </div>
         <div>
           <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 17, marginBottom: 6 }}>

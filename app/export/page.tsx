@@ -14,7 +14,7 @@ export default async function ExportPage() {
   ]);
 
   return (
-    <AppShell user={{ name: user.name ?? user.email, plan: user.plan }}>
+    <AppShell active="export" user={{ name: user.name ?? user.email, plan: user.plan }}>
       <div className="topbar">
         <h1 className="topbar-title">Export</h1>
       </div>

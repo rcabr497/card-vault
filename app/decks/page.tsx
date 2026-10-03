@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { formatMoney } from "@/lib/stats";
 import { relativeUpdated } from "@/lib/format";
 import { AppShell } from "@/components/AppShell";
+import { EmptyState } from "@/components/EmptyState";
 import { IconPlus } from "@/components/icons";
 import { DeckGridClient } from "@/components/DeckGridClient";
 
@@ -47,7 +48,11 @@ export default async function DecksPage() {
 
       <div className="page-pad">
         {decks.length === 0 ? (
-          <p style={{ fontSize: 13.5, color: "var(--text-soft)" }}>No decks yet — build your first one.</p>
+          <EmptyState
+            title="No decks yet"
+            body="Build a deck from cards you own, or add new ones as you go. Share it with a public link when it's ready."
+            action={{ href: "/decks/new", label: "Build your first deck" }}
+          />
         ) : (
           <DeckGridClient decks={tiles} />
         )}

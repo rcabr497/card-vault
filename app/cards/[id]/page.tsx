@@ -10,6 +10,7 @@ import { CardDataLoader } from "@/components/CardDataLoader";
 import { parseCardDetails, presentCardDetails, type DetailRow, type DetailSection } from "@/lib/cardDetails";
 import { ManaText } from "@/components/ManaText";
 import { ZoomableImage } from "@/components/ZoomableImage";
+import { categoryLabel, rarityLabel, teamFieldLabel, teamLabel } from "@/lib/cardLabels";
 
 // Where the visitor came from, so the back link and sidebar match. Only known
 // in-app paths are honored (never an arbitrary URL).
@@ -108,12 +109,12 @@ export default async function CardDetailPage({
   // Only rows that have a value — no wall of "—" — except the always-relevant ones.
   const fields: [string, string][] = (
     [
-      ["Category", card.category],
+      ["Category", categoryLabel(card.category)],
       ["Set / Product", card.setName],
       ["Card #", card.cardNumber],
       ["Year", card.year ? String(card.year) : null],
-      ["Team / Type", card.team],
-      ["Rarity", card.rarity],
+      [teamFieldLabel(card.category), teamLabel(card.category, card.team)],
+      ["Rarity", rarityLabel(card.rarity)],
       ["Grading company", card.gradingCompany],
       ["Grade", card.grade],
       ["Quantity", String(card.quantity)],

@@ -111,7 +111,7 @@ export default async function ShowcasePage() {
                     </div>
                     <div style={{ fontSize: 12, color: "var(--text-soft)" }}>{d.meta}</div>
                   </div>
-                  <div style={{ fontSize: 10.5, fontWeight: 600, color: "var(--text-soft)" }}>{d.updatedLabel}</div>
+                  <div style={{ fontSize: 12.5, fontWeight: 600, color: "var(--text-soft)" }}>{d.updatedLabel}</div>
                 </div>
               </Link>
             ))}
@@ -166,7 +166,7 @@ export default async function ShowcasePage() {
                     {b.count} cards · {b.value}
                   </div>
                 </div>
-                <div style={{ fontSize: 10.5, fontWeight: 600, color: "var(--text-soft)" }}>{b.updatedLabel}</div>
+                <div style={{ fontSize: 12.5, fontWeight: 600, color: "var(--text-soft)" }}>{b.updatedLabel}</div>
               </Link>
             ))}
           </div>

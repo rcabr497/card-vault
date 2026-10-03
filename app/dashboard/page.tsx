@@ -46,7 +46,7 @@ export default async function DashboardPage() {
             <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 15, margin: 0 }}>
               Collection breakdown
             </h2>
-            <Link href="/collection" style={{ fontSize: 12.5, fontWeight: 600, color: "var(--accent-ink)" }}>
+            <Link href="/collection" className="text-link" style={{ fontSize: 12.5, fontWeight: 600, color: "var(--accent-ink)" }}>
               View collection →
             </Link>
           </div>
@@ -78,7 +78,7 @@ export default async function DashboardPage() {
               <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 17, margin: 0 }}>
                 Recent additions
               </h2>
-              <Link href="/collection" style={{ fontSize: 12.5, fontWeight: 600, color: "var(--accent-ink)" }}>
+              <Link href="/collection" className="text-link" style={{ fontSize: 12.5, fontWeight: 600, color: "var(--accent-ink)" }}>
                 View collection →
               </Link>
             </div>
@@ -96,10 +96,10 @@ export default async function DashboardPage() {
                       <span className="card-photo-label">CARD PHOTO</span>
                     )}
                   </div>
-                  <div style={{ fontSize: 11.5, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <div style={{ fontSize: 12.5, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {c.name}
                   </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10.5, color: "var(--text-soft)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, color: "var(--text-soft)" }}>
                     <span>{c.set}</span>
                     <span style={{ color: "var(--accent-ink)", fontWeight: 700 }}>{c.value}</span>
                   </div>
@@ -125,7 +125,7 @@ export default async function DashboardPage() {
               </div>
               <div style={{ display: "flex", gap: 10, borderTop: "1px solid var(--divider)", paddingTop: 8 }}>
                 {trend.map((t) => (
-                  <div key={t.label} style={{ flex: 1, textAlign: "center", fontSize: 10, color: "var(--text-soft)" }}>
+                  <div key={t.label} style={{ flex: 1, textAlign: "center", fontSize: 12, color: "var(--text-soft)" }}>
                     {t.label}
                   </div>
                 ))}

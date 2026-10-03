@@ -3,6 +3,17 @@ import Link from "next/link";
 const ENTRIES: { date: string; title: string; items: string[] }[] = [
   {
     date: "October 2, 2026",
+    title: "Easier to read, easier to tap",
+    items: [
+      "Stronger contrast on buttons and badges, no text smaller than 12px, and bigger tap targets on phones.",
+      "Add Card has a single name field with Look up next to it, tucks grading, purchase price, and notes under More details, and remembers whether you last used manual entry, upload, or the camera.",
+      "On phones, Collection filters fold behind a Filters button so your cards show first. On desktop they fit in one compact row.",
+      "Deck cards are bigger, show their full names, and open the card page. Share and Delete for decks and binders moved into a More menu.",
+      "Card details read naturally (\"Magic: The Gathering\", \"Uncommon\", \"Color: Red\"), empty pages explain what to do next, Export is in the sidebar, and you can edit your name on Profile.",
+    ],
+  },
+  {
+    date: "October 2, 2026",
     title: "Trade cards with other collectors",
     items: [
       "New Trades page: pick a trading handle (the only name other traders see — never your name or email), then send an offer to anyone by their handle or by sharing your trade link.",

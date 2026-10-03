@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { IconChevronLeft, IconChevronRight } from "./icons";
+import { EmptyState } from "./EmptyState";
 
 export type CardListItem = {
   id: string;
@@ -88,15 +89,19 @@ export function CardGridOrList({
       </div>
 
       {cards.length === 0 ? (
-        <p style={{ fontSize: 13.5, color: "var(--text-soft)" }}>
-          {q ? (
-            <>No cards match &quot;{q}&quot;.</>
-          ) : Object.keys(extraParams).length > 0 ? (
-            "No cards match these filters."
-          ) : (
-            "No cards logged yet."
-          )}
-        </p>
+        q || Object.keys(extraParams).length > 0 ? (
+          <EmptyState
+            title="No matching cards"
+            body={q ? `Nothing in your collection matches “${q}” with these filters.` : "Nothing in your collection matches these filters."}
+            action={{ href: basePath, label: "Clear filters" }}
+          />
+        ) : (
+          <EmptyState
+            title="Your collection is empty"
+            body="Scan a card with your camera, upload a photo, or look one up by name to get started."
+            action={{ href: "/cards/new", label: "Add your first card" }}
+          />
+        )
       ) : view === "grid" ? (
         <div className="grid grid-5">
           {cards.map((c) => (
@@ -109,13 +114,13 @@ export function CardGridOrList({
                   <span className="card-photo-label">CARD PHOTO</span>
                 )}
               </div>
-              <div style={{ fontSize: 12, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <div style={{ fontSize: 13, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {c.name}
               </div>
-              <div style={{ fontSize: 10.5, color: "var(--text-soft)" }}>{c.cardNumber ?? c.setName ?? "—"}</div>
+              <div style={{ fontSize: 12.5, color: "var(--text-soft)" }}>{c.cardNumber ?? c.setName ?? "—"}</div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <span className={`condition-pill condition-${c.condition}`}>{c.condition}</span>
-                <span style={{ fontSize: 12, fontWeight: 800, color: "var(--accent-ink)" }}>{c.currentValue}</span>
+                <span style={{ fontSize: 13, fontWeight: 800, color: "var(--accent-ink)" }}>{c.currentValue}</span>
               </div>
             </Link>
           ))}

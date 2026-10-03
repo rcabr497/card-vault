@@ -9,6 +9,8 @@ import { IconUpload } from "./icons";
 
 type Mode = "manual" | "upload" | "camera";
 
+const MODE_KEY = "cardvault:addCardMode";
+
 const CATEGORIES = [
   { value: "pokemon", label: "Pokémon" },
   { value: "mtg", label: "Magic: The Gathering" },
@@ -82,6 +84,7 @@ export function AddCardForm({
 }) {
   const router = useRouter();
   const [mode, setMode] = useState<Mode>("manual");
+  const [moreOpen, setMoreOpen] = useState(false);
   const [fields, setFields] = useState<Fields>(() => emptyFields(binderType ?? CATEGORIES[0].value));
   const [selectedBinderId, setSelectedBinderId] = useState("");
   const [status, setStatus] = useState<string | null>(null);
@@ -99,6 +102,32 @@ export function AddCardForm({
 
   const lastLookedUpRef = useRef("");
   const topRef = useRef<HTMLDivElement>(null);
+
+  // Land people back in the entry mode they used last (scanners stay scanners).
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(MODE_KEY);
+      if (saved === "manual" || saved === "upload" || saved === "camera") setMode(saved);
+    } catch {
+      // storage can be unavailable (private mode); default to manual
+    }
+  }, []);
+
+  function chooseMode(m: Mode) {
+    setMode(m);
+    try {
+      localStorage.setItem(MODE_KEY, m);
+    } catch {
+      // ignore
+    }
+  }
+
+  // Open "More details" on its own when something filled one of its fields
+  // (e.g. a scan detected a graded slab).
+  const hasMoreDetails = !!(fields.gradingCompany || fields.grade || fields.purchasePrice || fields.notes);
+  useEffect(() => {
+    if (hasMoreDetails) setMoreOpen(true);
+  }, [hasMoreDetails]);
 
   function set<K extends keyof Fields>(key: K, value: Fields[K]) {
     setFields((f) => ({ ...f, [key]: value }));
@@ -320,30 +349,15 @@ export function AddCardForm({
             key={m}
             type="button"
             className={`pill${mode === m ? " pill-active" : ""}`}
-            onClick={() => setMode(m)}
+            onClick={() => chooseMode(m)}
           >
             {m === "manual" ? "Manual" : m === "upload" ? "Upload photo" : "Take picture"}
           </button>
         ))}
       </div>
 
+      {(mode !== "manual" || status || error) && (
       <div className="surface-card" style={{ padding: 20 }}>
-        {mode === "manual" && (
-          <div style={{ display: "flex", gap: 10, alignItems: "flex-end" }}>
-            <div className="field" style={{ flex: 1 }}>
-              <label>Card Name</label>
-              <input
-                className="input"
-                value={fields.name}
-                onChange={(e) => set("name", e.target.value)}
-                placeholder="Charizard"
-              />
-            </div>
-            <button type="button" className="btn btn-secondary" onClick={handleLookupByName} disabled={busy}>
-              Look up
-            </button>
-          </div>
-        )}
 
         {mode === "upload" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "flex-start" }}>
@@ -385,13 +399,14 @@ export function AddCardForm({
           </label>
         )}
 
-        {status && <p style={{ fontSize: 12.5, color: "var(--text-soft)", marginTop: 14 }}>{status}</p>}
+        {status && <p style={{ fontSize: 13, color: "var(--text-soft)", marginTop: mode === "manual" ? 0 : 14 }}>{status}</p>}
         {error && (
-          <div className="form-error" style={{ marginTop: 14 }}>
+          <div className="form-error" style={{ marginTop: mode === "manual" && !status ? 0 : 14 }}>
             {error}
           </div>
         )}
       </div>
+      )}
 
       {autoSaved.length > 0 && (
         <div className="surface-card" style={{ padding: 16 }}>
@@ -425,7 +440,23 @@ export function AddCardForm({
         <div className="grid" style={{ gridTemplateColumns: "1fr 1fr", gap: 18 }}>
           <div className="field">
             <label>Card Name</label>
-            <input className="input" value={fields.name} onChange={(e) => set("name", e.target.value)} required />
+            <div style={{ display: "flex", gap: 8 }}>
+              <input
+                className="input"
+                value={fields.name}
+                onChange={(e) => set("name", e.target.value)}
+                placeholder="Charizard"
+                required
+              />
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={handleLookupByName}
+                disabled={busy || !fields.name.trim()}
+              >
+                Look up
+              </button>
+            </div>
           </div>
           <div className="field">
             <label>Category</label>
@@ -485,19 +516,6 @@ export function AddCardForm({
             </select>
           </div>
           <div className="field">
-            <label>Grading company</label>
-            <input
-              className="input"
-              value={fields.gradingCompany}
-              onChange={(e) => set("gradingCompany", e.target.value)}
-              placeholder="PSA, BGS, CGC…"
-            />
-          </div>
-          <div className="field">
-            <label>Grade</label>
-            <input className="input" value={fields.grade} onChange={(e) => set("grade", e.target.value)} placeholder="9.5" />
-          </div>
-          <div className="field">
             <label>Quantity</label>
             <input
               className="input"
@@ -505,16 +523,6 @@ export function AddCardForm({
               min={1}
               value={fields.quantity}
               onChange={(e) => set("quantity", e.target.value)}
-            />
-          </div>
-          <div className="field">
-            <label>Purchase price ($)</label>
-            <input
-              className="input"
-              type="number"
-              step="0.01"
-              value={fields.purchasePrice}
-              onChange={(e) => set("purchasePrice", e.target.value)}
             />
           </div>
           <div className="field">
@@ -527,16 +535,52 @@ export function AddCardForm({
               onChange={(e) => set("currentValue", e.target.value)}
             />
           </div>
-          <div className="field" style={{ gridColumn: "1 / -1" }}>
-            <label>Notes</label>
-            <textarea
-              className="input"
-              rows={3}
-              value={fields.notes}
-              onChange={(e) => set("notes", e.target.value)}
-            />
-          </div>
         </div>
+
+        <details
+          className="surface-card"
+          style={{ padding: "14px 18px" }}
+          open={moreOpen}
+          onToggle={(e) => setMoreOpen(e.currentTarget.open)}
+        >
+          <summary style={{ fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
+            More details <span style={{ fontWeight: 500, color: "var(--text-soft)" }}>— grading, purchase price, notes</span>
+          </summary>
+          <div className="grid" style={{ gridTemplateColumns: "1fr 1fr", gap: 18, marginTop: 16 }}>
+            <div className="field">
+              <label>Grading company</label>
+              <input
+                className="input"
+                value={fields.gradingCompany}
+                onChange={(e) => set("gradingCompany", e.target.value)}
+                placeholder="PSA, BGS, CGC…"
+              />
+            </div>
+            <div className="field">
+              <label>Grade</label>
+              <input className="input" value={fields.grade} onChange={(e) => set("grade", e.target.value)} placeholder="9.5" />
+            </div>
+            <div className="field">
+              <label>Purchase price ($)</label>
+              <input
+                className="input"
+                type="number"
+                step="0.01"
+                value={fields.purchasePrice}
+                onChange={(e) => set("purchasePrice", e.target.value)}
+              />
+            </div>
+            <div className="field" style={{ gridColumn: "1 / -1" }}>
+              <label>Notes</label>
+              <textarea
+                className="input"
+                rows={3}
+                value={fields.notes}
+                onChange={(e) => set("notes", e.target.value)}
+              />
+            </div>
+          </div>
+        </details>
 
         <div style={{ display: "flex", gap: 10 }}>
           <button type="submit" className="btn btn-primary" disabled={saving}>

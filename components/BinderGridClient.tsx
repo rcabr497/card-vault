@@ -85,7 +85,7 @@ export function BinderGridClient({ binders }: { binders: BinderTile[] }) {
                   paddingTop: 12,
                 }}
               >
-                <span style={{ fontSize: 10.5, fontWeight: 600, color: "var(--text-soft)" }}>{b.updatedLabel}</span>
+                <span style={{ fontSize: 12.5, fontWeight: 600, color: "var(--text-soft)" }}>{b.updatedLabel}</span>
                 <span style={{ color: "var(--accent-ink)" }}>
                   <IconChevronRight />
                 </span>

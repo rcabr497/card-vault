@@ -83,7 +83,7 @@ export function formatMoney(value: number | Prisma.Decimal | null | undefined) {
   return n.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
-const CATEGORY_LABELS: Record<string, string> = {
+export const CATEGORY_LABELS: Record<string, string> = {
   pokemon: "Pokémon",
   mtg: "Magic: The Gathering",
   sports: "Sports",

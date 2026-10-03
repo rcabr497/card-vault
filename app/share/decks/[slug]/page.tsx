@@ -44,7 +44,7 @@ export default async function SharedDeckPage({ params }: { params: { slug: strin
               </div>
             )}
             <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "var(--accent-ink)", marginBottom: 6 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "var(--accent-ink)", marginBottom: 6 }}>
                 Shared deck
               </div>
               <h1 style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 32, margin: "0 0 8px" }}>
@@ -91,10 +91,10 @@ export default async function SharedDeckPage({ params }: { params: { slug: strin
                     <span className="card-photo-label">CARD PHOTO</span>
                   )}
                 </div>
-                <div style={{ fontSize: 12, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <div style={{ fontSize: 13, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {dc.card.name}
                 </div>
-                <div style={{ fontSize: 10.5, color: "var(--text-soft)" }}>{dc.card.team ?? "—"}</div>
+                <div style={{ fontSize: 12.5, color: "var(--text-soft)" }}>{dc.card.team ?? "—"}</div>
               </div>
             ))}
           </div>

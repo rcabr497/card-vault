@@ -2,18 +2,19 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { IconDashboard, IconGrid, IconBinder, IconDeck, IconShare, IconMenu, IconClose, IconTrade } from "./icons";
+import { IconDashboard, IconGrid, IconBinder, IconDeck, IconShare, IconMenu, IconClose, IconTrade, IconDownload } from "./icons";
 import { TradesBadge } from "./TradesBadge";
 
-type NavKey = "dashboard" | "collection" | "binders" | "decks" | "trades" | "showcase";
+type NavKey = "dashboard" | "collection" | "binders" | "decks" | "trades" | "showcase" | "export";
 
 const NAV_ITEMS: { key: NavKey; href: string; label: string; icon: React.ReactNode }[] = [
   { key: "dashboard", href: "/dashboard", label: "Dashboard", icon: <IconDashboard /> },
   { key: "collection", href: "/collection", label: "Collection", icon: <IconGrid /> },
-  { key: "binders", href: "/binders", label: "Binder", icon: <IconBinder /> },
+  { key: "binders", href: "/binders", label: "Binders", icon: <IconBinder /> },
   { key: "decks", href: "/decks", label: "Decks", icon: <IconDeck /> },
   { key: "trades", href: "/trades", label: "Trades", icon: <IconTrade /> },
   { key: "showcase", href: "/showcase", label: "Showcase", icon: <IconShare /> },
+  { key: "export", href: "/export", label: "Export", icon: <IconDownload /> },
 ];
 
 function initials(name: string) {
@@ -67,7 +68,8 @@ export function AppShell({
           </nav>
           <Link
             href="/changelog"
-            style={{ fontSize: 11.5, color: "var(--text-soft)", padding: "0 14px", marginTop: "auto" }}
+            className="sidebar-footer-link"
+            style={{ fontSize: 12.5, color: "var(--text-soft)", padding: "0 14px", marginTop: "auto" }}
           >
             Changelog
           </Link>

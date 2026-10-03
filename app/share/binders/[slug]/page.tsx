@@ -44,7 +44,7 @@ export default async function SharedBinderPage({ params }: { params: { slug: str
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 24px 80px" }}>
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 20, marginBottom: 40 }}>
           <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "var(--accent-ink)", marginBottom: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "var(--accent-ink)", marginBottom: 6 }}>
               Shared binder
             </div>
             <h1 style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 32, margin: "0 0 8px" }}>
@@ -81,12 +81,12 @@ export default async function SharedBinderPage({ params }: { params: { slug: str
                     <span className="card-photo-label">CARD PHOTO</span>
                   )}
                 </div>
-                <div style={{ fontSize: 12, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <div style={{ fontSize: 13, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {bc.card.name}
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <span className={`condition-pill condition-${bc.card.condition}`}>{bc.card.condition}</span>
-                  <span style={{ fontSize: 12, fontWeight: 800, color: "var(--accent-ink)" }}>
+                  <span style={{ fontSize: 13, fontWeight: 800, color: "var(--accent-ink)" }}>
                     {formatMoney(bc.card.currentValue)}
                   </span>
                 </div>

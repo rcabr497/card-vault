@@ -20,7 +20,7 @@ export function CollectionControls({
   basePath: string;
   params: Record<string, string>;
   years: number[];
-  teams: string[];
+  teams: { value: string; label: string }[];
 }) {
   const router = useRouter();
 
@@ -32,10 +32,10 @@ export function CollectionControls({
     router.push(`${basePath}?${next.toString()}`);
   }
 
-  const selectStyle = { width: "auto", minHeight: 34, padding: "6px 10px", fontSize: 13 } as const;
+  const selectStyle = { width: "auto", padding: "6px 10px", fontSize: 13 } as const;
 
   return (
-    <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", marginBottom: 16 }}>
+    <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
       <select
         className="input"
         style={selectStyle}
@@ -75,8 +75,8 @@ export function CollectionControls({
         >
           <option value="">All teams / types</option>
           {teams.map((t) => (
-            <option key={t} value={t}>
-              {t}
+            <option key={t.value} value={t.value}>
+              {t.label}
             </option>
           ))}
         </select>

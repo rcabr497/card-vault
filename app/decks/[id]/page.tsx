@@ -10,6 +10,9 @@ import { AddCardToDeckDialog } from "@/components/AddCardToDeckDialog";
 import { DeleteDeckButton } from "@/components/DeleteDeckButton";
 import { IconChevronLeft, IconChevronRight, IconPlus } from "@/components/icons";
 import { computeTypeBreakdown } from "@/lib/deckTypeBreakdown";
+import { teamLabel } from "@/lib/cardLabels";
+import { ActionsMenu } from "@/components/ActionsMenu";
+import { EmptyState } from "@/components/EmptyState";
 
 const PAGE_SIZE = 15;
 
@@ -52,7 +55,7 @@ export default async function DeckDetailPage({
           <Link href="/decks" className="back-link">
             ← All decks
           </Link>
-          <div style={{ fontSize: 11, fontWeight: 700, color: "var(--accent-ink)", marginBottom: 6 }}>Deck</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--accent-ink)", marginBottom: 6 }}>Deck</div>
           <h1 className="topbar-title">{deck.name}</h1>
           <div className="topbar-subtitle">
             {totalCount} cards{deck.format ? ` · ${deck.format}` : ""} · {formatMoney(totalValue)} value
@@ -64,27 +67,35 @@ export default async function DeckDetailPage({
           )}
         </div>
         <div className="topbar-actions">
-          <DeckShareToggle deckId={deck.id} initialShared={deck.isShared} initialSlug={deck.shareSlug} />
           <Link href={`/decks/${deck.id}/add`} className="btn btn-primary">
             <IconPlus />
             New card
           </Link>
           <AddCardToDeckDialog deckId={deck.id} cards={allUserCards} />
-          <DeleteDeckButton deckId={deck.id} />
+          <ActionsMenu>
+            <DeckShareToggle deckId={deck.id} initialShared={deck.isShared} initialSlug={deck.shareSlug} />
+            <DeleteDeckButton deckId={deck.id} />
+          </ActionsMenu>
         </div>
       </div>
 
       <div className="grid deck-cols" style={{ gridTemplateColumns: "1fr 300px", gap: 0 }}>
         <div className="page-pad">
           {pageItems.length === 0 ? (
-            <p style={{ fontSize: 13.5, color: "var(--text-soft)" }}>
-              No cards in this deck yet. Use <strong>New card</strong> to scan or look one up, or{" "}
-              <strong>Add from collection</strong> to pick cards you already own.
-            </p>
+            <EmptyState
+              title="No cards in this deck yet"
+              body="Use New card to scan or look one up, or Add from collection to pick cards you already own."
+              action={{ href: `/decks/${deck.id}/add`, label: "Add a new card" }}
+            />
           ) : (
-            <div className="grid grid-5">
+            <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))" }}>
               {pageItems.map((dc) => (
-                <div key={dc.cardId} className="tile" style={{ padding: 12, gap: 8, position: "relative" }}>
+                <Link
+                  key={dc.cardId}
+                  href={`/cards/${dc.cardId}?from=${encodeURIComponent(`/decks/${deck.id}`)}`}
+                  className="tile"
+                  style={{ padding: 12, gap: 8, position: "relative" }}
+                >
                   <span className="qty-badge">x{dc.quantity}</span>
                   <div className="card-photo">
                     {dc.card.thumbnailUrl ?? dc.card.imageUrl ? (
@@ -99,11 +110,13 @@ export default async function DeckDetailPage({
                       <span className="card-photo-label">CARD PHOTO</span>
                     )}
                   </div>
-                  <div style={{ fontSize: 12, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <div className="clamp-2" style={{ fontSize: 13, fontWeight: 700 }}>
                     {dc.card.name}
                   </div>
-                  <div style={{ fontSize: 10.5, color: "var(--text-soft)" }}>{dc.card.team ?? "—"}</div>
-                </div>
+                  {teamLabel(dc.card.category, dc.card.team) && (
+                    <div style={{ fontSize: 12.5, color: "var(--text-soft)" }}>{teamLabel(dc.card.category, dc.card.team)}</div>
+                  )}
+                </Link>
               ))}
             </div>
           )}

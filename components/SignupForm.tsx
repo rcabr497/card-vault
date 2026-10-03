@@ -91,11 +91,11 @@ export function SignupForm({ callbackUrl = "/dashboard" }: { callbackUrl?: strin
           >
             <div>
               <div style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 22 }}>1,204</div>
-              <div style={{ fontSize: 11, opacity: 0.9 }}>avg. cards logged</div>
+              <div style={{ fontSize: 12, opacity: 0.9 }}>avg. cards logged</div>
             </div>
             <div>
               <div style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 22 }}>$18k</div>
-              <div style={{ fontSize: 11, opacity: 0.9 }}>avg. tracked value</div>
+              <div style={{ fontSize: 12, opacity: 0.9 }}>avg. tracked value</div>
             </div>
           </div>
         </div>

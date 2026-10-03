@@ -73,7 +73,7 @@ export function DeckCardPicker({
                 <div style={{ fontSize: 13, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {c.name}
                 </div>
-                {c.setName && <div style={{ fontSize: 11, color: "var(--text-soft)" }}>{c.setName}</div>}
+                {c.setName && <div style={{ fontSize: 12, color: "var(--text-soft)" }}>{c.setName}</div>}
               </div>
               {selected[c.id] ? (
                 <input

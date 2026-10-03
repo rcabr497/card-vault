@@ -118,7 +118,7 @@ export default async function LandingPage() {
         <div id="vault" className="surface-card" style={{ padding: 24, boxShadow: "var(--shadow-md)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 16 }}>
             <span style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 14 }}>Your Vault</span>
-            <span style={{ fontSize: 11.5, color: "var(--text-soft)" }}>Updated just now</span>
+            <span style={{ fontSize: 12.5, color: "var(--text-soft)" }}>Updated just now</span>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 16 }}>
             {vaultCards.map((c) => (
@@ -141,10 +141,10 @@ export default async function LandingPage() {
                   )}
                 </div>
                 <div style={{ padding: "8px 4px 2px", textAlign: "center" }}>
-                  <div style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 10.5 }}>{c.name}</div>
-                  <div style={{ fontSize: 9, color: "var(--text-soft)", marginBottom: 6 }}>{c.team}</div>
+                  <div style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 12.5 }}>{c.name}</div>
+                  <div style={{ fontSize: 12, color: "var(--text-soft)", marginBottom: 6 }}>{c.team}</div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: 11, fontWeight: 700 }}>{c.value}</span>
+                    <span style={{ fontSize: 12, fontWeight: 700 }}>{c.value}</span>
                     <span className={`condition-pill condition-${c.cond}`}>{c.cond}</span>
                   </div>
                 </div>

@@ -4,6 +4,7 @@ import { formatMoney } from "@/lib/stats";
 import { relativeUpdated } from "@/lib/format";
 import { AppShell } from "@/components/AppShell";
 import { NewBinderDialog } from "@/components/NewBinderDialog";
+import { EmptyState } from "@/components/EmptyState";
 import { BinderGridClient } from "@/components/BinderGridClient";
 
 export default async function BindersPage() {
@@ -54,9 +55,11 @@ export default async function BindersPage() {
 
       <div className="page-pad">
         {binders.length === 0 ? (
-          <p style={{ fontSize: 13.5, color: "var(--text-soft)" }}>
-            No binders yet — create one to start logging cards.
-          </p>
+          <EmptyState
+            title="No binders yet"
+            body="Binders group cards the way you store them — by set, player, or game. Every card is in your collection either way; a binder just organizes it."
+            action={<NewBinderDialog />}
+          />
         ) : (
           <BinderGridClient binders={tiles} />
         )}

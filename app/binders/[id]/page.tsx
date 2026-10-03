@@ -9,6 +9,8 @@ import { BinderSearchInput } from "@/components/BinderSearchInput";
 import { DeleteBinderButton } from "@/components/DeleteBinderButton";
 import { BinderShareToggle } from "@/components/BinderShareToggle";
 import { BinderSportSelect } from "@/components/BinderSportSelect";
+import { ActionsMenu } from "@/components/ActionsMenu";
+import { EmptyState } from "@/components/EmptyState";
 import { CardCondition } from "@prisma/client";
 
 const PAGE_SIZE = 15;
@@ -73,7 +75,7 @@ export default async function BinderDetailPage({
           <Link href="/binders" className="back-link">
             ← All binders
           </Link>
-          <h1 className="topbar-title">Binder — {binder.name}</h1>
+          <h1 className="topbar-title">{binder.name}</h1>
           <div className="topbar-subtitle" style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
             <span>
               {totalCards} cards · {formatMoney(totalValue)} value
@@ -87,18 +89,20 @@ export default async function BinderDetailPage({
           )}
         </div>
         <div className="topbar-actions">
-          <BinderSearchInput binderId={binder.id} initialQ={q} condition={condition} />
           <Link href={`/binders/${binder.id}/add`} className="btn btn-primary">
             <IconPlus />
             Add Card
           </Link>
-          <BinderShareToggle binderId={binder.id} initialShared={binder.isShared} initialSlug={binder.shareSlug} />
-          <DeleteBinderButton binderId={binder.id} />
+          <ActionsMenu>
+            <BinderShareToggle binderId={binder.id} initialShared={binder.isShared} initialSlug={binder.shareSlug} />
+            <DeleteBinderButton binderId={binder.id} />
+          </ActionsMenu>
         </div>
       </div>
 
-      <div className="filter-row">
-        <span className="filter-row-label">Filter:</span>
+      <div className="filter-row" style={{ flexWrap: "wrap" }}>
+        <BinderSearchInput binderId={binder.id} initialQ={q} condition={condition} />
+        <span className="filter-row-label">Condition</span>
         {CONDITIONS.map((c) => (
           <Link key={c} href={linkWith({ condition: c, page: "1" })} className={`pill${condition === c ? " pill-active" : ""}`}>
             {c}
@@ -108,7 +112,19 @@ export default async function BinderDetailPage({
 
       <div className="page-pad">
         {cards.length === 0 ? (
-          <p style={{ fontSize: 13.5, color: "var(--text-soft)" }}>No cards match this filter.</p>
+          allBinderCards.length === 0 ? (
+            <EmptyState
+              title="This binder is empty"
+              body="Add cards by scanning, uploading a photo, or looking them up by name. They'll also show up in your collection."
+              action={{ href: `/binders/${binder.id}/add`, label: "Add a card" }}
+            />
+          ) : (
+            <EmptyState
+              title="No matching cards"
+              body="Nothing in this binder matches that search or condition."
+              action={{ href: `/binders/${binder.id}`, label: "Clear filters" }}
+            />
+          )
         ) : (
           <div className="grid grid-5">
             {cards.map((c) => (
@@ -126,13 +142,13 @@ export default async function BinderDetailPage({
                     <span className="card-photo-label">CARD PHOTO</span>
                   )}
                 </div>
-                <div style={{ fontSize: 12, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <div style={{ fontSize: 13, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {c.name}
                 </div>
-                <div style={{ fontSize: 10.5, color: "var(--text-soft)" }}>{c.cardNumber ?? "—"}</div>
+                <div style={{ fontSize: 12.5, color: "var(--text-soft)" }}>{c.cardNumber ?? "—"}</div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <span className={`condition-pill condition-${c.condition}`}>{c.condition}</span>
-                  <span style={{ fontSize: 12, fontWeight: 800, color: "var(--accent-ink)" }}>
+                  <span style={{ fontSize: 13, fontWeight: 800, color: "var(--accent-ink)" }}>
                     {formatMoney(c.currentValue)}
                   </span>
                 </div>
