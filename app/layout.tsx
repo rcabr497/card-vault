@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
-import { Baloo_2, Nunito } from "next/font/google";
+import { Barlow, Big_Shoulders_Display } from "next/font/google";
 import { Providers } from "@/components/Providers";
 import "./globals.css";
 
-const baloo2 = Baloo_2({
+// Headings and big numbers: tall, condensed capitals (scoreboard feel).
+const display = Big_Shoulders_Display({
   subsets: ["latin"],
-  weight: ["600", "700", "800"],
+  weight: ["700", "800", "900"],
   variable: "--font-heading",
 });
 
-const nunito = Nunito({
+const barlow = Barlow({
   subsets: ["latin"],
-  weight: ["400", "600", "700", "800"],
+  weight: ["400", "500", "600", "700", "800"],
   variable: "--font-body",
 });
 
@@ -26,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${baloo2.variable} ${nunito.variable}`}>
+    <html lang="en" className={`${display.variable} ${barlow.variable}`}>
       <body>
         <Providers>{children}</Providers>
       </body>

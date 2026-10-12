@@ -12,6 +12,7 @@ import { BinderSportSelect } from "@/components/BinderSportSelect";
 import { ActionsMenu } from "@/components/ActionsMenu";
 import { EmptyState } from "@/components/EmptyState";
 import { CardCondition } from "@prisma/client";
+import { CardTile } from "@/components/CardTile";
 
 const PAGE_SIZE = 15;
 const CONDITIONS = ["All", "NM", "LP", "EX", "MINT"] as const;
@@ -126,33 +127,18 @@ export default async function BinderDetailPage({
             />
           )
         ) : (
-          <div className="grid grid-5">
+          <div className="card-grid">
             {cards.map((c) => (
-              <Link key={c.id} href={`/cards/${c.id}?from=${encodeURIComponent(`/binders/${binder.id}`)}`} className="tile" style={{ padding: 12, gap: 8 }}>
-                <div className="card-photo">
-                  {c.thumbnailUrl ?? c.imageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={c.thumbnailUrl ?? c.imageUrl ?? undefined}
-                      alt={c.name}
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  ) : (
-                    <span className="card-photo-label">CARD PHOTO</span>
-                  )}
-                </div>
-                <div style={{ fontSize: 13, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {c.name}
-                </div>
-                <div style={{ fontSize: 12.5, color: "var(--text-soft)" }}>{c.cardNumber ?? "—"}</div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span className={`condition-pill condition-${c.condition}`}>{c.condition}</span>
-                  <span style={{ fontSize: 13, fontWeight: 800, color: "var(--accent-ink)" }}>
-                    {formatMoney(c.currentValue)}
-                  </span>
-                </div>
-              </Link>
+              <CardTile
+                key={c.id}
+                href={`/cards/${c.id}?from=${encodeURIComponent(`/binders/${binder.id}`)}`}
+                name={c.name}
+                imageUrl={c.thumbnailUrl ?? c.imageUrl}
+                category={c.category}
+                showGame={false}
+                meta={c.setName ?? c.cardNumber ?? "—"}
+                value={formatMoney(c.currentValue)}
+              />
             ))}
           </div>
         )}

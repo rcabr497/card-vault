@@ -41,6 +41,7 @@ export async function getDashboardStats(userId: string) {
 
   const trend = months.map((m, i) => ({
     label: m.label,
+    value: formatCompactMoney(trendValues[i]),
     h: `${Math.max(4, Math.round((trendValues[i] / maxTrend) * 100))}%`,
   }));
 
@@ -48,7 +49,7 @@ export async function getDashboardStats(userId: string) {
     where: { userId },
     orderBy: { createdAt: "desc" },
     take: 10,
-    select: { id: true, name: true, setName: true, currentValue: true, imageUrl: true, thumbnailUrl: true },
+    select: { id: true, name: true, setName: true, currentValue: true, imageUrl: true, thumbnailUrl: true, category: true },
   });
 
   return {
@@ -58,6 +59,7 @@ export async function getDashboardStats(userId: string) {
       { label: "Sets tracked", value: setsTracked.toLocaleString() },
       { label: "Binders", value: bindersCount.toLocaleString() },
     ],
+    totals: { cardsLogged, totalValue, setsTracked, bindersCount, gradedCount },
     breakdown: {
       byCategory: [
         { key: "pokemon", label: "Pokémon", count: byCategory.pokemon },
@@ -73,6 +75,7 @@ export async function getDashboardStats(userId: string) {
       set: c.setName ?? "—",
       value: formatMoney(Number(c.currentValue ?? 0)),
       imageUrl: c.thumbnailUrl ?? c.imageUrl,
+      category: c.category,
     })),
     trend,
   };
@@ -81,6 +84,11 @@ export async function getDashboardStats(userId: string) {
 export function formatMoney(value: number | Prisma.Decimal | null | undefined) {
   const n = Number(value ?? 0);
   return n.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+// "$2.4k" style, for chart labels.
+export function formatCompactMoney(value: number) {
+  return value.toLocaleString("en-US", { style: "currency", currency: "USD", notation: "compact", minimumFractionDigits: 0, maximumFractionDigits: 1 });
 }
 
 export const CATEGORY_LABELS: Record<string, string> = {

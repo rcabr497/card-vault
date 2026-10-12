@@ -70,7 +70,7 @@ export function SignupForm({ callbackUrl = "/dashboard" }: { callbackUrl?: strin
           >
             <span style={{ width: 13, height: 17, borderRadius: 3, background: "var(--bg)" }} />
           </span>
-          <span style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 19 }}>
+          <span style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 25 }}>
             Card Vault
           </span>
         </Link>
@@ -90,11 +90,11 @@ export function SignupForm({ callbackUrl = "/dashboard" }: { callbackUrl?: strin
             }}
           >
             <div>
-              <div style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 22 }}>1,204</div>
+              <div style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 29 }}>1,204</div>
               <div style={{ fontSize: 12, opacity: 0.9 }}>avg. cards logged</div>
             </div>
             <div>
-              <div style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 22 }}>$18k</div>
+              <div style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 29 }}>$18k</div>
               <div style={{ fontSize: 12, opacity: 0.9 }}>avg. tracked value</div>
             </div>
           </div>
@@ -112,7 +112,7 @@ export function SignupForm({ callbackUrl = "/dashboard" }: { callbackUrl?: strin
             </button>
           </div>
 
-          <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 26, margin: "0 0 8px" }}>
+          <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 34, margin: "0 0 8px" }}>
             {isSignup ? "Create your vault" : "Welcome back"}
           </h2>
           <p style={{ fontSize: 13.5, color: "var(--text-soft)", margin: "0 0 28px" }}>

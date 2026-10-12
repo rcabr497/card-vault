@@ -63,34 +63,22 @@ export function CameraCapture({ onCapture }: { onCapture: (blob: Blob) => void }
   }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 14, alignItems: "center" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 18, alignItems: "center" }}>
       {error ? (
         <div className="form-error">{error}</div>
       ) : (
         <>
-          <div
-            style={{
-              width: "100%",
-              maxWidth: 280,
-              aspectRatio: `${CARD_RATIO}`,
-              borderRadius: 8,
-              overflow: "hidden",
-              background: "#000",
-              border: "2px solid var(--accent)",
-              position: "relative",
-            }}
-          >
+          <div className="viewfinder" style={{ aspectRatio: `${CARD_RATIO}` }}>
             {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-            <video
-              ref={videoRef}
-              autoPlay
-              muted
-              playsInline
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            />
+            <video ref={videoRef} autoPlay muted playsInline />
+            <span className="viewfinder-corner tl" />
+            <span className="viewfinder-corner tr" />
+            <span className="viewfinder-corner bl" />
+            <span className="viewfinder-corner br" />
           </div>
-          <button type="button" className="btn btn-primary" onClick={capture} disabled={!ready}>
-            <IconCamera size={16} />
+          <p style={{ fontSize: 14, color: "var(--ink-soft)", margin: 0 }}>Hold the card flat inside the frame</p>
+          <button type="button" className="btn btn-highlight btn-lg" onClick={capture} disabled={!ready}>
+            <IconCamera size={18} />
             Capture
           </button>
         </>

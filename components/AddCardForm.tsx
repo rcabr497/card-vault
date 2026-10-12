@@ -74,6 +74,7 @@ export function AddCardForm({
   binderSport,
   binders,
   deckId,
+  initialMode,
 }: {
   binderId?: string;
   // When set, new cards are also added to this deck (and we return to it after saving).
@@ -81,9 +82,11 @@ export function AddCardForm({
   binderType?: string;
   binderSport?: string;
   binders?: BinderOption[];
+  // Opened from the Scan button: start in this mode instead of the remembered one.
+  initialMode?: Mode;
 }) {
   const router = useRouter();
-  const [mode, setMode] = useState<Mode>("manual");
+  const [mode, setMode] = useState<Mode>(initialMode ?? "manual");
   const [moreOpen, setMoreOpen] = useState(false);
   const [fields, setFields] = useState<Fields>(() => emptyFields(binderType ?? CATEGORIES[0].value));
   const [selectedBinderId, setSelectedBinderId] = useState("");
@@ -105,13 +108,14 @@ export function AddCardForm({
 
   // Land people back in the entry mode they used last (scanners stay scanners).
   useEffect(() => {
+    if (initialMode) return;
     try {
       const saved = localStorage.getItem(MODE_KEY);
       if (saved === "manual" || saved === "upload" || saved === "camera") setMode(saved);
     } catch {
       // storage can be unavailable (private mode); default to manual
     }
-  }, []);
+  }, [initialMode]);
 
   function chooseMode(m: Mode) {
     setMode(m);
@@ -343,21 +347,16 @@ export function AddCardForm({
 
   return (
     <div ref={topRef} style={{ maxWidth: 720, display: "flex", flexDirection: "column", gap: 24 }}>
-      <div style={{ display: "flex", gap: 6 }}>
+      <div className="segmented" role="group" aria-label="How to add the card" style={{ alignSelf: "flex-start" }}>
         {(["manual", "upload", "camera"] as Mode[]).map((m) => (
-          <button
-            key={m}
-            type="button"
-            className={`pill${mode === m ? " pill-active" : ""}`}
-            onClick={() => chooseMode(m)}
-          >
-            {m === "manual" ? "Manual" : m === "upload" ? "Upload photo" : "Take picture"}
+          <button key={m} type="button" aria-pressed={mode === m} onClick={() => chooseMode(m)}>
+            {m === "manual" ? "Type it in" : m === "upload" ? "Upload photo" : "Camera"}
           </button>
         ))}
       </div>
 
       {(mode !== "manual" || status || error) && (
-      <div className="surface-card" style={{ padding: 20 }}>
+      <div className={mode === "camera" ? "ink-card scan-panel" : "surface-card"} style={{ padding: 20 }}>
 
         {mode === "upload" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "flex-start" }}>
@@ -383,23 +382,20 @@ export function AddCardForm({
         {mode === "camera" && <CameraCapture onCapture={handlePhoto} />}
 
         {showAutoToggle && (
-          <label
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              fontSize: 12.5,
-              color: "var(--text-soft)",
-              marginTop: 16,
-              cursor: "pointer",
-            }}
-          >
-            <input type="checkbox" checked={autoMode} onChange={(e) => setAutoMode(e.target.checked)} />
-            Auto-save high-confidence matches and jump to the next card
+          <label className="auto-switch">
+            <input type="checkbox" role="switch" checked={autoMode} onChange={(e) => setAutoMode(e.target.checked)} />
+            <span className="auto-switch-track" aria-hidden="true" />
+            <span>
+              <strong>Auto mode</strong> — save confident matches automatically and get ready for the next card
+            </span>
           </label>
         )}
 
-        {status && <p style={{ fontSize: 13, color: "var(--text-soft)", marginTop: mode === "manual" ? 0 : 14 }}>{status}</p>}
+        {status && (
+          <p style={{ fontSize: 14, color: mode === "camera" ? "var(--ink-soft)" : "var(--text-soft)", marginTop: mode === "manual" ? 0 : 14 }}>
+            {status}
+          </p>
+        )}
         {error && (
           <div className="form-error" style={{ marginTop: mode === "manual" && !status ? 0 : 14 }}>
             {error}
@@ -437,7 +433,7 @@ export function AddCardForm({
       )}
 
       <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-        <div className="grid" style={{ gridTemplateColumns: "1fr 1fr", gap: 18 }}>
+        <div className="grid form-grid">
           <div className="field">
             <label>Card Name</label>
             <div style={{ display: "flex", gap: 8 }}>
@@ -546,7 +542,7 @@ export function AddCardForm({
           <summary style={{ fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
             More details <span style={{ fontWeight: 500, color: "var(--text-soft)" }}>— grading, purchase price, notes</span>
           </summary>
-          <div className="grid" style={{ gridTemplateColumns: "1fr 1fr", gap: 18, marginTop: 16 }}>
+          <div className="grid form-grid" style={{ marginTop: 16 }}>
             <div className="field">
               <label>Grading company</label>
               <input

@@ -1,6 +1,19 @@
 import Link from "next/link";
+import { IconVault } from "@/components/icons";
 
 const ENTRIES: { date: string; title: string; items: string[] }[] = [
+  {
+    date: "October 12, 2026",
+    title: "A whole new look, built for your phone",
+    items: [
+      "New look everywhere: ink and paper with a marigold highlight, tall Big Shoulders headings, and Barlow for everything else, with prices that line up.",
+      "On phones, a bottom tab bar (Home, Collection, Decks, Trades) with a big Scan button in the middle that opens straight to the camera. Binders, Showcase, Export, and Profile live under More.",
+      "The dashboard leads with your collection value and a 6-month chart, shows what's in the vault at a glance, and has a Needs you list for trade offers waiting on you and decks with rule problems.",
+      "Decks group their cards by type (Pokémon, Trainers, Energy or Creatures, Instants, Lands…), say under each card what rule it breaks, and switch between Cards, Check, and Notes tabs on phones. Every deck shows a Legal or problems badge.",
+      "Card pages put the market value up top, show which binders and decks hold the card, and keep the full card data below.",
+      "Trades show what you give and what you get side by side with totals, and the scanner has a proper viewfinder and an Auto mode switch.",
+    ],
+  },
   {
     date: "October 3, 2026",
     title: "Deck check: is your deck legal?",
@@ -238,8 +251,10 @@ export default function ChangelogPage() {
     <div>
       <nav className="nav">
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, color: "var(--text)" }}>
-          <span className="brand-mark" style={{ width: 32, height: 32 }} />
-          <span style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 19 }}>Card Vault</span>
+          <span className="brand-mark" style={{ width: 32, height: 32 }}>
+            <IconVault />
+          </span>
+          <span style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 25 }}>Card Vault</span>
         </Link>
         <div style={{ marginLeft: "auto" }}>
           <Link href="/signup" className="btn btn-primary">
@@ -249,7 +264,7 @@ export default function ChangelogPage() {
       </nav>
 
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "48px 24px 80px" }}>
-        <h1 style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 34, margin: "0 0 8px" }}>
+        <h1 style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 44, margin: "0 0 8px" }}>
           Changelog
         </h1>
         <p style={{ fontSize: 14, color: "var(--text-soft)", margin: "0 0 40px" }}>
@@ -262,7 +277,7 @@ export default function ChangelogPage() {
               <div style={{ fontSize: 12, fontWeight: 700, color: "var(--accent-ink)", marginBottom: 6 }}>
                 {entry.date}
               </div>
-              <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 19, margin: "0 0 14px" }}>
+              <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 25, margin: "0 0 14px" }}>
                 {entry.title}
               </h2>
               <ul style={{ margin: 0, paddingLeft: 20, display: "flex", flexDirection: "column", gap: 8 }}>
@@ -278,7 +293,7 @@ export default function ChangelogPage() {
       </div>
 
       <footer style={{ padding: "24px 48px 40px", display: "flex", alignItems: "center", gap: 16, maxWidth: 1200, margin: "0 auto" }}>
-        <span style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 14 }}>Card Vault</span>
+        <span style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 18 }}>Card Vault</span>
         <span style={{ fontSize: 12, color: "var(--text-soft)", marginLeft: "auto" }}>
           © 2026 Card Vault. Built for collectors, by collectors.
         </span>

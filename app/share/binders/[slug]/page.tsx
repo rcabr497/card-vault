@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { formatMoney } from "@/lib/stats";
 import { ImportToCollectionButton } from "@/components/ImportToCollectionButton";
+import { IconVault } from "@/components/icons";
 
 export default async function SharedBinderPage({ params }: { params: { slug: string } }) {
   const session = await auth();
@@ -31,8 +32,10 @@ export default async function SharedBinderPage({ params }: { params: { slug: str
     <div>
       <nav className="nav">
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, color: "var(--text)" }}>
-          <span className="brand-mark" style={{ width: 32, height: 32 }} />
-          <span style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 19 }}>Card Vault</span>
+          <span className="brand-mark" style={{ width: 32, height: 32 }}>
+            <IconVault />
+          </span>
+          <span style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 25 }}>Card Vault</span>
         </Link>
         <div style={{ marginLeft: "auto" }}>
           <Link href={session?.user?.id ? "/dashboard" : "/signup"} className="btn btn-primary">
@@ -47,7 +50,7 @@ export default async function SharedBinderPage({ params }: { params: { slug: str
             <div style={{ fontSize: 12, fontWeight: 700, color: "var(--accent-ink)", marginBottom: 6 }}>
               Shared binder
             </div>
-            <h1 style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 32, margin: "0 0 8px" }}>
+            <h1 style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 42, margin: "0 0 8px" }}>
               {binder.name}
             </h1>
             <div style={{ fontSize: 13.5, color: "var(--text-soft)" }}>
@@ -67,7 +70,7 @@ export default async function SharedBinderPage({ params }: { params: { slug: str
         <div style={{ display: "grid", gridTemplateColumns: "1fr 260px", gap: 32 }} className="deck-cols">
           <div className="grid grid-5">
             {binder.binderCards.map((bc) => (
-              <div key={bc.cardId} className="tile" style={{ padding: 12, gap: 8 }}>
+              <div key={bc.cardId} className="tile" style={{ gap: 8 }}>
                 <div className="card-photo">
                   {bc.card.thumbnailUrl ?? bc.card.imageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -86,7 +89,7 @@ export default async function SharedBinderPage({ params }: { params: { slug: str
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <span className={`condition-pill condition-${bc.card.condition}`}>{bc.card.condition}</span>
-                  <span style={{ fontSize: 13, fontWeight: 800, color: "var(--accent-ink)" }}>
+                  <span style={{ fontSize: 13.5, fontWeight: 700 }}>
                     {formatMoney(bc.card.currentValue)}
                   </span>
                 </div>
@@ -95,7 +98,7 @@ export default async function SharedBinderPage({ params }: { params: { slug: str
           </div>
 
           <div>
-            <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 15, margin: "0 0 16px" }}>
+            <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 20, margin: "0 0 16px" }}>
               Type breakdown
             </h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>

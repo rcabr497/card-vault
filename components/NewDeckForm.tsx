@@ -111,7 +111,7 @@ export function NewDeckForm({ cards }: { cards: PickerCard[] }) {
       </div>
 
       <div>
-        <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 15, marginBottom: 12 }}>
+        <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 20, marginBottom: 12 }}>
           Add cards
         </h2>
         <p style={{ fontSize: 12.5, color: "var(--text-soft)", margin: "0 0 12px" }}>

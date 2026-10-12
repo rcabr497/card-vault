@@ -71,7 +71,7 @@ export function ExportWizard({ binders, decks }: { binders: Option[]; decks: Opt
 
       {step === 1 && (
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-          <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 18, margin: 0 }}>
+          <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 23, margin: 0 }}>
             Step 1 — What do you want to export?
           </h2>
 
@@ -120,7 +120,7 @@ export function ExportWizard({ binders, decks }: { binders: Option[]; decks: Opt
 
       {step === 2 && (
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-          <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 18, margin: 0 }}>
+          <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 23, margin: 0 }}>
             Step 2 — Choose columns
           </h2>
 
@@ -159,7 +159,7 @@ export function ExportWizard({ binders, decks }: { binders: Option[]; decks: Opt
 
       {step === 3 && (
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-          <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 18, margin: 0 }}>
+          <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 23, margin: 0 }}>
             Step 3 — Confirm & export
           </h2>
 

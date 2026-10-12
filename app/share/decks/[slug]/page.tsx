@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { formatMoney } from "@/lib/stats";
 import { computeTypeBreakdown } from "@/lib/deckTypeBreakdown";
 import { ImportToCollectionButton } from "@/components/ImportToCollectionButton";
+import { IconVault } from "@/components/icons";
 
 export default async function SharedDeckPage({ params }: { params: { slug: string } }) {
   const session = await auth();
@@ -24,8 +25,10 @@ export default async function SharedDeckPage({ params }: { params: { slug: strin
     <div>
       <nav className="nav">
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, color: "var(--text)" }}>
-          <span className="brand-mark" style={{ width: 32, height: 32 }} />
-          <span style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 19 }}>Card Vault</span>
+          <span className="brand-mark" style={{ width: 32, height: 32 }}>
+            <IconVault />
+          </span>
+          <span style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 25 }}>Card Vault</span>
         </Link>
         <div style={{ marginLeft: "auto" }}>
           <Link href={session?.user?.id ? "/dashboard" : "/signup"} className="btn btn-primary">
@@ -47,7 +50,7 @@ export default async function SharedDeckPage({ params }: { params: { slug: strin
               <div style={{ fontSize: 12, fontWeight: 700, color: "var(--accent-ink)", marginBottom: 6 }}>
                 Shared deck
               </div>
-              <h1 style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 32, margin: "0 0 8px" }}>
+              <h1 style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 42, margin: "0 0 8px" }}>
                 {deck.name}
               </h1>
               <div style={{ fontSize: 13.5, color: "var(--text-soft)" }}>
@@ -76,7 +79,7 @@ export default async function SharedDeckPage({ params }: { params: { slug: strin
         >
           <div className="grid grid-5">
             {deck.deckCards.map((dc) => (
-              <div key={dc.cardId} className="tile" style={{ padding: 12, gap: 8, position: "relative" }}>
+              <div key={dc.cardId} className="tile" style={{ gap: 8, position: "relative" }}>
                 <span className="qty-badge">x{dc.quantity}</span>
                 <div className="card-photo">
                   {dc.card.thumbnailUrl ?? dc.card.imageUrl ? (
@@ -101,7 +104,7 @@ export default async function SharedDeckPage({ params }: { params: { slug: strin
 
           {typeBreakdown.length > 0 && (
             <div>
-              <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 15, margin: "0 0 16px" }}>
+              <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 20, margin: "0 0 16px" }}>
                 Type breakdown
               </h2>
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
