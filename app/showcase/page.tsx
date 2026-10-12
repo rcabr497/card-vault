@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatMoney } from "@/lib/stats";
 import { relativeUpdated } from "@/lib/format";
+import { IconVault } from "@/components/icons";
 
 export const revalidate = 300;
 
@@ -63,8 +64,10 @@ export default async function ShowcasePage() {
     <div>
       <nav className="nav">
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, color: "var(--text)" }}>
-          <span className="brand-mark" style={{ width: 32, height: 32 }} />
-          <span style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 19 }}>Card Vault</span>
+          <span className="brand-mark" style={{ width: 32, height: 32 }}>
+            <IconVault />
+          </span>
+          <span style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 25 }}>Card Vault</span>
         </Link>
         <div style={{ marginLeft: "auto" }}>
           <Link href="/signup" className="btn btn-primary">
@@ -74,14 +77,14 @@ export default async function ShowcasePage() {
       </nav>
 
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "48px 24px 80px" }}>
-        <h1 style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 34, margin: "0 0 8px" }}>
+        <h1 style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 44, margin: "0 0 8px" }}>
           Showcase
         </h1>
         <p style={{ fontSize: 14, color: "var(--text-soft)", margin: "0 0 40px" }}>
           Decks and binders the community has made public.
         </p>
 
-        <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 19, margin: "0 0 16px" }}>
+        <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 25, margin: "0 0 16px" }}>
           Public decks
         </h2>
         {deckTiles.length === 0 ? (
@@ -89,7 +92,7 @@ export default async function ShowcasePage() {
         ) : (
           <div className="grid grid-3" style={{ marginBottom: 48 }}>
             {deckTiles.map((d) => (
-              <Link key={d.slug} href={`/share/decks/${d.slug}`} className="tile" style={{ overflow: "hidden" }}>
+              <Link key={d.slug} href={`/share/decks/${d.slug}`} className="tile surface-card" style={{ overflow: "hidden" }}>
                 <div className="card-photo" style={{ aspectRatio: "2.5/1.4", borderRadius: 0 }}>
                   {d.featuredImageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -106,7 +109,7 @@ export default async function ShowcasePage() {
                 </div>
                 <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 14 }}>
                   <div>
-                    <div style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 16, marginBottom: 4 }}>
+                    <div style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 24, lineHeight: 1, textTransform: "uppercase", marginBottom: 6 }}>
                       {d.name}
                     </div>
                     <div style={{ fontSize: 12, color: "var(--text-soft)" }}>{d.meta}</div>
@@ -118,7 +121,7 @@ export default async function ShowcasePage() {
           </div>
         )}
 
-        <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 19, margin: "0 0 16px" }}>
+        <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 25, margin: "0 0 16px" }}>
           Public binders
         </h2>
         {binderTiles.length === 0 ? (
@@ -129,7 +132,7 @@ export default async function ShowcasePage() {
               <Link
                 key={b.slug}
                 href={`/share/binders/${b.slug}`}
-                className="tile"
+                className="tile surface-card"
                 style={{ padding: 20, gap: 14 }}
               >
                 <div style={{ display: "flex", gap: 6, height: 64 }}>
@@ -159,7 +162,7 @@ export default async function ShowcasePage() {
                   ))}
                 </div>
                 <div>
-                  <div style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 16, marginBottom: 4 }}>
+                  <div style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 24, lineHeight: 1, textTransform: "uppercase", marginBottom: 6 }}>
                     {b.name}
                   </div>
                   <div style={{ fontSize: 12, color: "var(--text-soft)" }}>
@@ -174,7 +177,7 @@ export default async function ShowcasePage() {
       </div>
 
       <footer style={{ padding: "24px 48px 40px", display: "flex", alignItems: "center", gap: 16, maxWidth: 1200, margin: "0 auto" }}>
-        <span style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 14 }}>Card Vault</span>
+        <span style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 18 }}>Card Vault</span>
         <Link href="/changelog" style={{ fontSize: 12, color: "var(--text-soft)" }}>
           Changelog
         </Link>

@@ -4,7 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { AppShell } from "@/components/AppShell";
 import { AddCardForm } from "@/components/AddCardForm";
 
-export default async function NewCardPage() {
+export default async function NewCardPage({ searchParams }: { searchParams: { mode?: string } }) {
+  const scanning = searchParams.mode === "camera";
   const session = await auth();
   const userId = session!.user.id;
 
@@ -24,11 +25,12 @@ export default async function NewCardPage() {
           <Link href="/dashboard" className="back-link">
             ← Dashboard
           </Link>
-          <h1 className="topbar-title">Add Card</h1>
+          <h1 className="topbar-title">{scanning ? "Scan a card" : "Add card"}</h1>
+          {scanning && <div className="topbar-subtitle">Hold the card flat in good light. Matches fill in the details for you.</div>}
         </div>
       </div>
       <div className="page-pad">
-        <AddCardForm binders={binders} />
+        <AddCardForm binders={binders} initialMode={scanning ? "camera" : undefined} />
       </div>
     </AppShell>
   );

@@ -32,7 +32,7 @@ export function CollectionControls({
     router.push(`${basePath}?${next.toString()}`);
   }
 
-  const selectStyle = { width: "auto", padding: "6px 10px", fontSize: 13 } as const;
+  const selectStyle = { width: "auto", minHeight: 40, padding: "6px 36px 6px 12px", fontSize: 14 } as const;
 
   return (
     <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>

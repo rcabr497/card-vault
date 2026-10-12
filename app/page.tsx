@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { IconLayers, IconTrendUp, IconScan, IconBarChart, IconArrowRight } from "@/components/icons";
+import { IconLayers, IconTrendUp, IconScan, IconBarChart, IconArrowRight, IconVault } from "@/components/icons";
 import { getPublicShowcase } from "@/lib/stats";
 
 export const revalidate = 300;
@@ -70,8 +70,10 @@ export default async function LandingPage() {
     <div>
       <nav className="nav">
         <Link href="#top" style={{ display: "flex", alignItems: "center", gap: 10, color: "var(--text)" }}>
-          <span className="brand-mark" style={{ width: 32, height: 32 }} />
-          <span style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 19 }}>Card Vault</span>
+          <span className="brand-mark" style={{ width: 32, height: 32 }}>
+            <IconVault />
+          </span>
+          <span style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 25 }}>Card Vault</span>
         </Link>
         <div className="nav-links">
           <a href="#features">Features</a>
@@ -117,7 +119,7 @@ export default async function LandingPage() {
 
         <div id="vault" className="surface-card" style={{ padding: 24, boxShadow: "var(--shadow-md)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 16 }}>
-            <span style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 14 }}>Your Vault</span>
+            <span style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 18 }}>Your Vault</span>
             <span style={{ fontSize: 12.5, color: "var(--text-soft)" }}>Updated just now</span>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 16 }}>
@@ -141,7 +143,7 @@ export default async function LandingPage() {
                   )}
                 </div>
                 <div style={{ padding: "8px 4px 2px", textAlign: "center" }}>
-                  <div style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 12.5 }}>{c.name}</div>
+                  <div style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 16 }}>{c.name}</div>
                   <div style={{ fontSize: 12, color: "var(--text-soft)", marginBottom: 6 }}>{c.team}</div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <span style={{ fontSize: 12, fontWeight: 700 }}>{c.value}</span>
@@ -214,7 +216,7 @@ export default async function LandingPage() {
       </section>
 
       <footer style={{ padding: "24px 48px 40px", display: "flex", alignItems: "center", gap: 16 }}>
-        <span style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 14 }}>Card Vault</span>
+        <span style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 18 }}>Card Vault</span>
         <Link href="/changelog" style={{ fontSize: 12, color: "var(--text-soft)" }}>
           Changelog
         </Link>

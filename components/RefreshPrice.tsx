@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export function RefreshPrice({ cardId }: { cardId: string }) {
+// onDark: sits on the ink value panel, so its controls use light colors.
+export function RefreshPrice({ cardId, onDark = false }: { cardId: string; onDark?: boolean }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [estimate, setEstimate] = useState<number | null>(null);
@@ -45,18 +46,18 @@ export function RefreshPrice({ cardId }: { cardId: string }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "flex-start" }}>
-      <button type="button" className="btn btn-secondary" onClick={checkPrice} disabled={busy}>
+      <button type="button" className={`btn ${onDark ? "btn-on-dark" : "btn-secondary"}`} onClick={checkPrice} disabled={busy}>
         Refresh price
       </button>
       {estimate !== null && (
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 13.5 }}>Estimated market value: ${estimate.toFixed(2)}</span>
-          <button type="button" className="pill pill-active" onClick={applyValue} disabled={busy}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+          <span style={{ fontSize: 14 }}>Estimated market value: ${estimate.toFixed(2)}</span>
+          <button type="button" className={`btn ${onDark ? "btn-highlight" : "btn-primary"}`} onClick={applyValue} disabled={busy}>
             Update to ${estimate.toFixed(2)}
           </button>
         </div>
       )}
-      {status && <p style={{ fontSize: 12.5, color: "var(--text-soft)", margin: 0 }}>{status}</p>}
+      {status && <p style={{ fontSize: 13, color: onDark ? "var(--ink-soft)" : "var(--text-soft)", margin: 0 }}>{status}</p>}
     </div>
   );
 }

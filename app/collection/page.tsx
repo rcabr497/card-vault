@@ -2,18 +2,18 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { formatMoney } from "@/lib/stats";
-import { AppShell } from "@/components/AppShell";
+import { AppShell, SCAN_HREF } from "@/components/AppShell";
 import { teamLabel } from "@/lib/cardLabels";
 import { CollapsibleFilters } from "@/components/CollapsibleFilters";
 import { CardGridOrList } from "@/components/CardGridOrList";
 import { CollectionControls } from "@/components/CollectionControls";
-import { IconPlus } from "@/components/icons";
+import { IconPlus, IconScanFrame } from "@/components/icons";
 import { CardCategory, CardCondition, Prisma } from "@prisma/client";
 
 const PAGE_SIZE = 25;
 
 const CATEGORIES = [
-  { value: "all", label: "All games" },
+  { value: "all", label: "All" },
   { value: "pokemon", label: "Pokémon" },
   { value: "mtg", label: "Magic" },
   { value: "sports", label: "Sports" },
@@ -88,7 +88,7 @@ export default async function CollectionPage({ searchParams }: { searchParams: S
     ...(binder === "loose" ? { binderCards: { none: {} } } : {}),
   };
 
-  const [user, totalCount, valueAgg, pageCards, yearRows, teamRows] = await Promise.all([
+  const [user, totalCount, valueAgg, pageCards, yearRows, teamRows, categoryRows] = await Promise.all([
     prisma.user.findUniqueOrThrow({ where: { id: userId } }),
     prisma.card.count({ where }),
     prisma.card.aggregate({ where, _sum: { currentValue: true } }),
@@ -111,7 +111,9 @@ export default async function CollectionPage({ searchParams }: { searchParams: S
       select: { team: true, category: true },
       orderBy: { team: "asc" },
     }),
+    prisma.card.groupBy({ by: ["category"], where: { userId }, _count: { _all: true } }),
   ]);
+  const categoryCounts = new Map(categoryRows.map((r) => [r.category as string, r._count._all]));
 
   const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
   const years = yearRows.map((r) => r.year!).filter((y) => y != null);
@@ -127,7 +129,7 @@ export default async function CollectionPage({ searchParams }: { searchParams: S
   if (year) activeParams.year = year;
   if (team) activeParams.team = team;
   if (sort !== "newest") activeParams.sort = sort;
-  const activeFilterCount = [category !== "all", condition !== "All", binder !== "all", !!year, !!team].filter(Boolean).length;
+  const activeFilterCount = [condition !== "All", binder !== "all", !!year, !!team, sort !== "newest"].filter(Boolean).length;
 
   const linkWith = (overrides: Record<string, string>) => {
     const params = new URLSearchParams({ ...activeParams, page: String(page), ...overrides });
@@ -150,58 +152,23 @@ export default async function CollectionPage({ searchParams }: { searchParams: S
           </div>
         </div>
         <div className="topbar-actions">
+          <Link href={SCAN_HREF} className="btn btn-secondary">
+            <IconScanFrame size={18} />
+            Scan a card
+          </Link>
           <Link href="/cards/new" className="btn btn-primary">
             <IconPlus />
-            Add Card
+            Add card
           </Link>
         </div>
       </div>
 
-      <CollapsibleFilters activeCount={activeFilterCount}>
-        <div className="filter-group">
-          <span className="filter-row-label">Game</span>
-          {CATEGORIES.map((c) => (
-            <Link
-              key={c.value}
-              href={linkWith({ category: c.value === "all" ? "" : c.value, page: "1" })}
-              className={`pill${category === c.value ? " pill-active" : ""}`}
-            >
-              {c.label}
-            </Link>
-          ))}
-        </div>
-        <div className="filter-group">
-          <span className="filter-row-label">Condition</span>
-          {CONDITIONS.map((c) => (
-            <Link
-              key={c}
-              href={linkWith({ condition: c === "All" ? "" : c, page: "1" })}
-              className={`pill${condition === c ? " pill-active" : ""}`}
-            >
-              {c}
-            </Link>
-          ))}
-        </div>
-        <div className="filter-group">
-          <span className="filter-row-label">Binder</span>
-          {BINDER_FILTERS.map((b) => (
-            <Link
-              key={b.value}
-              href={linkWith({ binder: b.value === "all" ? "" : b.value, page: "1" })}
-              className={`pill${binder === b.value ? " pill-active" : ""}`}
-            >
-              {b.label}
-            </Link>
-          ))}
-        </div>
-        <CollectionControls basePath="/collection" params={{ ...activeParams }} years={years} teams={teams} />
-      </CollapsibleFilters>
-
-      <div className="page-pad" style={{ paddingTop: 16 }}>
+      <div className="page-pad">
         <CardGridOrList
           cards={pageCards.map((c) => ({
             id: c.id,
             name: c.name,
+            category: c.category,
             setName: c.setName,
             cardNumber: c.cardNumber,
             condition: c.condition,
@@ -214,6 +181,50 @@ export default async function CollectionPage({ searchParams }: { searchParams: S
           totalPages={totalPages}
           basePath="/collection"
           extraParams={gridExtraParams}
+          toolbar={
+            <>
+              <div className="chip-row" role="group" aria-label="Filter by game">
+                {CATEGORIES.filter((c) => c.value === "all" || categoryCounts.has(c.value)).map((c) => (
+                  <Link
+                    key={c.value}
+                    href={linkWith({ category: c.value === "all" ? "" : c.value, page: "1" })}
+                    className={`pill${category === c.value ? " pill-active" : ""}`}
+                    aria-current={category === c.value ? "true" : undefined}
+                  >
+                    {c.label}
+                    {c.value !== "all" && <span className="pill-count">{categoryCounts.get(c.value)}</span>}
+                  </Link>
+                ))}
+              </div>
+              <CollapsibleFilters activeCount={activeFilterCount}>
+                <div className="filter-group">
+                  <span className="filter-row-label">Condition</span>
+                  {CONDITIONS.map((c) => (
+                    <Link
+                      key={c}
+                      href={linkWith({ condition: c === "All" ? "" : c, page: "1" })}
+                      className={`pill${condition === c ? " pill-active" : ""}`}
+                    >
+                      {c}
+                    </Link>
+                  ))}
+                </div>
+                <div className="filter-group">
+                  <span className="filter-row-label">Binder</span>
+                  {BINDER_FILTERS.map((b) => (
+                    <Link
+                      key={b.value}
+                      href={linkWith({ binder: b.value === "all" ? "" : b.value, page: "1" })}
+                      className={`pill${binder === b.value ? " pill-active" : ""}`}
+                    >
+                      {b.label}
+                    </Link>
+                  ))}
+                </div>
+                <CollectionControls basePath="/collection" params={{ ...activeParams }} years={years} teams={teams} />
+              </CollapsibleFilters>
+            </>
+          }
         />
       </div>
     </AppShell>

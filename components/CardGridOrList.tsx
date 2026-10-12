@@ -3,12 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { IconChevronLeft, IconChevronRight } from "./icons";
+import { IconChevronLeft, IconChevronRight, IconSearch } from "./icons";
 import { EmptyState } from "./EmptyState";
+import { CardTile, gameTint } from "./CardTile";
 
 export type CardListItem = {
   id: string;
   name: string;
+  category: string;
   setName: string | null;
   cardNumber: string | null;
   condition: string;
@@ -24,6 +26,7 @@ export function CardGridOrList({
   totalPages,
   basePath,
   extraParams = {},
+  toolbar,
 }: {
   cards: CardListItem[];
   q: string;
@@ -31,6 +34,8 @@ export function CardGridOrList({
   totalPages: number;
   basePath: string;
   extraParams?: Record<string, string>;
+  // Filter chips and controls shown under the search row.
+  toolbar?: React.ReactNode;
 }) {
   const router = useRouter();
   const [view, setView] = useState<"grid" | "list">("grid");
@@ -51,42 +56,29 @@ export function CardGridOrList({
   }, [value]);
 
   const linkWith = (overrides: Record<string, string>) => {
-    const params = new URLSearchParams({ ...extraParams, page: String(page), ...overrides });
-    if (!params.get("q")) params.delete("q");
+    const params = new URLSearchParams({ ...extraParams, ...(q ? { q } : {}), page: String(page), ...overrides });
     return `${basePath}?${params.toString()}`;
   };
 
   return (
-    <div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, gap: 14, flexWrap: "wrap" }}>
-        <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 17, margin: 0 }}>All cards</h2>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <input
-            type="search"
-            className="input"
-            placeholder="Search your collection…"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            style={{ width: 220 }}
-          />
-          <div style={{ display: "flex", gap: 6 }}>
-            <button
-              type="button"
-              className={`pill${view === "grid" ? " pill-active" : ""}`}
-              onClick={() => setView("grid")}
-            >
-              Grid
-            </button>
-            <button
-              type="button"
-              className={`pill${view === "list" ? " pill-active" : ""}`}
-              onClick={() => setView("list")}
-            >
-              List
-            </button>
-          </div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <label className="search-field">
+          <IconSearch />
+          <span className="visually-hidden">Search your cards</span>
+          <input type="search" placeholder="Search your cards" value={value} onChange={(e) => setValue(e.target.value)} />
+        </label>
+        <div className="segmented" role="group" aria-label="View">
+          <button type="button" aria-pressed={view === "grid"} onClick={() => setView("grid")}>
+            Grid
+          </button>
+          <button type="button" aria-pressed={view === "list"} onClick={() => setView("list")}>
+            List
+          </button>
         </div>
       </div>
+
+      {toolbar}
 
       {cards.length === 0 ? (
         q || Object.keys(extraParams).length > 0 ? (
@@ -103,57 +95,37 @@ export function CardGridOrList({
           />
         )
       ) : view === "grid" ? (
-        <div className="grid grid-5">
+        <div className="card-grid">
           {cards.map((c) => (
-            <Link key={c.id} href={`/cards/${c.id}`} className="tile" style={{ padding: 12, gap: 8 }}>
-              <div className="card-photo">
-                {c.imageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={c.imageUrl} alt={c.name} loading="lazy" decoding="async" />
-                ) : (
-                  <span className="card-photo-label">CARD PHOTO</span>
-                )}
-              </div>
-              <div style={{ fontSize: 13, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {c.name}
-              </div>
-              <div style={{ fontSize: 12.5, color: "var(--text-soft)" }}>{c.cardNumber ?? c.setName ?? "—"}</div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span className={`condition-pill condition-${c.condition}`}>{c.condition}</span>
-                <span style={{ fontSize: 13, fontWeight: 800, color: "var(--accent-ink)" }}>{c.currentValue}</span>
-              </div>
-            </Link>
+            <CardTile
+              key={c.id}
+              href={`/cards/${c.id}`}
+              name={c.name}
+              imageUrl={c.imageUrl}
+              category={c.category}
+              meta={c.setName ?? c.cardNumber ?? "—"}
+              value={c.currentValue}
+            />
           ))}
         </div>
       ) : (
-        <div className="surface-card" style={{ overflow: "hidden" }}>
-          {cards.map((c, i) => (
-            <Link
-              key={c.id}
-              href={`/cards/${c.id}`}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 14,
-                padding: "12px 18px",
-                borderTop: i === 0 ? "none" : "1px solid var(--divider)",
-                color: "var(--text)",
-              }}
-            >
-              <div className="card-photo" style={{ width: 32, aspectRatio: "5/7", flex: "none" }}>
+        <div className="surface-card list-card">
+          {cards.map((c) => (
+            <Link key={c.id} href={`/cards/${c.id}`} className="list-row" style={{ justifyContent: "flex-start" }}>
+              <div className="card-photo" style={{ width: 34, flex: "none", borderRadius: 5, background: c.imageUrl ? undefined : gameTint(c.category) }}>
                 {c.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={c.imageUrl} alt={c.name} loading="lazy" decoding="async" />
+                  <img src={c.imageUrl} alt="" loading="lazy" decoding="async" />
                 ) : null}
               </div>
-              <div style={{ flex: 1, minWidth: 0, fontSize: 13, fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {c.name}
+              <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
+                <strong style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.name}</strong>
+                <span style={{ fontSize: 13, color: "var(--text-soft)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {[c.setName, c.binderName !== "—" ? c.binderName : null].filter(Boolean).join(" · ") || "—"}
+                </span>
               </div>
-              <div style={{ fontSize: 12, color: "var(--text-soft)", width: 160 }}>{c.binderName}</div>
               <span className={`condition-pill condition-${c.condition}`}>{c.condition}</span>
-              <span style={{ fontSize: 13, fontWeight: 800, color: "var(--accent-ink)", width: 70, textAlign: "right" }}>
-                {c.currentValue}
-              </span>
+              <strong style={{ width: 64, textAlign: "right", flex: "none" }}>{c.currentValue}</strong>
             </Link>
           ))}
         </div>
@@ -161,11 +133,11 @@ export function CardGridOrList({
 
       {totalPages > 1 && (
         <div className="pager">
-          <span style={{ fontSize: 12.5, color: "var(--text-soft)" }}>
+          <span style={{ fontSize: 13, color: "var(--text-soft)" }}>
             Page {page} of {totalPages}
           </span>
           <div className="pager-controls">
-            <Link href={linkWith({ page: String(Math.max(1, page - 1)) })} className="pager-btn">
+            <Link href={linkWith({ page: String(Math.max(1, page - 1)) })} className="pager-btn" aria-label="Previous page">
               <IconChevronLeft />
             </Link>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
@@ -173,7 +145,7 @@ export function CardGridOrList({
                 {p}
               </Link>
             ))}
-            <Link href={linkWith({ page: String(Math.min(totalPages, page + 1)) })} className="pager-btn">
+            <Link href={linkWith({ page: String(Math.min(totalPages, page + 1)) })} className="pager-btn" aria-label="Next page">
               <IconChevronRight />
             </Link>
           </div>

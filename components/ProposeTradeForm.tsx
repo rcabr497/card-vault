@@ -66,7 +66,7 @@ export function ProposeTradeForm({ initialHandle, cards }: { initialHandle: stri
       </div>
 
       <div>
-        <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 16, marginBottom: 4 }}>You give</h2>
+        <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 21, marginBottom: 4 }}>You give</h2>
         <p style={{ fontSize: 13, color: "var(--text-soft)", margin: "0 0 12px" }}>
           Pick the cards you&apos;re offering. Leave it as a gift, or say what you&apos;d like in return below — they&apos;ll add
           their side when they respond.

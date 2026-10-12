@@ -32,7 +32,7 @@ export default async function NewTradePage({ searchParams }: { searchParams: { w
 
         {!user.handle ? (
           <div className="surface-card" style={{ padding: 24, maxWidth: 560, display: "flex", flexDirection: "column", gap: 12 }}>
-            <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 18, margin: 0 }}>First, choose your trading handle</h2>
+            <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 23, margin: 0 }}>First, choose your trading handle</h2>
             <p style={{ fontSize: 14, color: "var(--text-soft)", margin: 0 }}>
               It&apos;s how {recipient ? `@${withHandle}` : "other collectors"} will see you. Your name and email stay private.
             </p>

@@ -18,7 +18,7 @@ export default async function ProfilePage() {
       </div>
       <div className="page-pad" style={{ display: "flex", flexDirection: "column", gap: 40 }}>
         <div>
-          <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 17, marginBottom: 16 }}>
+          <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 22, marginBottom: 16 }}>
             Account
           </h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -27,7 +27,7 @@ export default async function ProfilePage() {
           </div>
         </div>
         <div>
-          <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 17, marginBottom: 6 }}>
+          <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 22, marginBottom: 6 }}>
             Trading handle
           </h2>
           <p style={{ fontSize: 13.5, color: "var(--text-soft)", margin: "0 0 14px" }}>
@@ -42,7 +42,7 @@ export default async function ProfilePage() {
           )}
         </div>
         <div>
-          <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 17, marginBottom: 16 }}>
+          <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 22, marginBottom: 16 }}>
             Update password
           </h2>
           <PasswordForm />

@@ -5,9 +5,9 @@ import { usePathname } from "next/navigation";
 
 export const TRADES_CHANGED = "cardvault:trades-changed";
 
-// Count of trades waiting on you, shown next to "Trades" in the sidebar.
-// Fetched client-side so the pages that render AppShell don't each query it.
-export function TradesBadge() {
+// Count of trades waiting on you, shown next to "Trades" in the sidebar and
+// tab bar. Fetched client-side so the pages that render AppShell don't each query it.
+export function useTradesCount(): number {
   const pathname = usePathname();
   const [count, setCount] = useState(0);
 
@@ -29,6 +29,10 @@ export function TradesBadge() {
     };
   }, [pathname]);
 
+  return count;
+}
+
+export function TradesBadge({ count }: { count: number }) {
   if (count === 0) return null;
   return (
     <span className="nav-badge" aria-label={`${count} waiting on you`}>

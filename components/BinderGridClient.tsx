@@ -40,7 +40,7 @@ export function BinderGridClient({ binders }: { binders: BinderTile[] }) {
       ) : (
         <div className="grid grid-3">
           {filtered.map((b) => (
-            <Link key={b.id} href={`/binders/${b.id}`} className="tile" style={{ padding: 20, gap: 14 }}>
+            <Link key={b.id} href={`/binders/${b.id}`} className="tile surface-card" style={{ padding: 20, gap: 14 }}>
               <div style={{ display: "flex", gap: 6, height: 64 }}>
                 {Array.from({ length: 4 }).map((_, i) => {
                   const imageUrl = b.swatches[i];
@@ -69,7 +69,7 @@ export function BinderGridClient({ binders }: { binders: BinderTile[] }) {
                 })}
               </div>
               <div>
-                <div style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 16, marginBottom: 4 }}>
+                <div style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 24, lineHeight: 1, textTransform: "uppercase", marginBottom: 6 }}>
                   {b.name}
                 </div>
                 <div style={{ fontSize: 12, color: "var(--text-soft)" }}>

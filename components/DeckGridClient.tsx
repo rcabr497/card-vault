@@ -9,6 +9,8 @@ export type DeckTile = {
   featuredImageUrl: string | null;
   meta: string;
   updatedLabel: string;
+  verdict: "legal" | "illegal" | "unverified" | null;
+  failCount: number;
 };
 
 export function DeckGridClient({ decks }: { decks: DeckTile[] }) {
@@ -38,7 +40,7 @@ export function DeckGridClient({ decks }: { decks: DeckTile[] }) {
       ) : (
         <div className="grid grid-3">
           {filtered.map((d) => (
-            <Link key={d.id} href={`/decks/${d.id}`} className="tile" style={{ overflow: "hidden" }}>
+            <Link key={d.id} href={`/decks/${d.id}`} className="tile surface-card" style={{ overflow: "hidden" }}>
               <div className="card-photo" style={{ aspectRatio: "2.5/1.4", borderRadius: 0 }}>
                 {d.featuredImageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -55,12 +57,21 @@ export function DeckGridClient({ decks }: { decks: DeckTile[] }) {
               </div>
               <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 14 }}>
                 <div>
-                  <div style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 16, marginBottom: 4 }}>
+                  <div style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 24, lineHeight: 1, textTransform: "uppercase", marginBottom: 6 }}>
                     {d.name}
                   </div>
                   <div style={{ fontSize: 12, color: "var(--text-soft)" }}>{d.meta}</div>
                 </div>
-                <div style={{ fontSize: 12.5, fontWeight: 600, color: "var(--text-soft)" }}>{d.updatedLabel}</div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 13, color: "var(--text-soft)" }}>{d.updatedLabel}</span>
+                  {d.verdict === "legal" && <span className="badge badge-good">Legal</span>}
+                  {d.verdict === "illegal" && (
+                    <span className="badge badge-bad">
+                      {d.failCount} {d.failCount === 1 ? "problem" : "problems"}
+                    </span>
+                  )}
+                  {d.verdict === "unverified" && <span className="badge badge-info">Unverified</span>}
+                </div>
               </div>
             </Link>
           ))}

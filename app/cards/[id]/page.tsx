@@ -11,6 +11,8 @@ import { parseCardDetails, presentCardDetails, type DetailRow, type DetailSectio
 import { ManaText } from "@/components/ManaText";
 import { ZoomableImage } from "@/components/ZoomableImage";
 import { categoryLabel, rarityLabel, teamFieldLabel, teamLabel } from "@/lib/cardLabels";
+import { gameTint } from "@/components/CardTile";
+import { IconChevronRight } from "@/components/icons";
 
 // Where the visitor came from, so the back link and sidebar match. Only known
 // in-app paths are honored (never an arbitrary URL).
@@ -46,11 +48,11 @@ function SectionCard({ s }: { s: DetailSection }) {
   const rest = s.rows.slice(head.length);
   return (
     <div className="surface-card" style={{ padding: 18, minWidth: 0 }}>
-      <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 12 }}>{s.title}</div>
+      <h3 style={{ fontSize: 19, marginBottom: 12 }}>{s.title}</h3>
       {head.length > 0 && <DetailList rows={head} />}
       {rest.length > 0 && (
         <details style={{ marginTop: 10 }}>
-          <summary style={{ fontSize: 13, fontWeight: 600, cursor: "pointer", color: "var(--accent-ink)" }}>
+          <summary style={{ fontSize: 13.5, fontWeight: 700, cursor: "pointer", textDecoration: "underline" }}>
             Show all {s.rows.length}
           </summary>
           <div style={{ marginTop: 10 }}>
@@ -61,8 +63,10 @@ function SectionCard({ s }: { s: DetailSection }) {
       {s.chips && s.chips.length > 0 && (
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
           {s.chips.map((c) => (
-            <span key={c.label} className={`chip${c.on ? " chip-on" : ""}`} title={c.on ? "Legal" : "Not legal"}>
+            <span key={c.label} className={`chip${c.on ? " chip-on" : ""}`}>
+              {c.on ? "✓ " : ""}
               {c.label}
+              <span className="visually-hidden">{c.on ? " — legal" : " — not legal"}</span>
             </span>
           ))}
         </div>
@@ -83,6 +87,10 @@ export default async function CardDetailPage({
 
   const card = await prisma.card.findFirst({
     where: { id: params.id, userId },
+    include: {
+      binderCards: { include: { binder: { select: { id: true, name: true } } } },
+      deckCards: { include: { deck: { select: { id: true, name: true } } } },
+    },
   });
   if (!card) notFound();
 
@@ -109,29 +117,26 @@ export default async function CardDetailPage({
   // Only rows that have a value — no wall of "—" — except the always-relevant ones.
   const fields: [string, string][] = (
     [
-      ["Category", categoryLabel(card.category)],
-      ["Set / Product", card.setName],
-      ["Card #", card.cardNumber],
       ["Year", card.year ? String(card.year) : null],
       [teamFieldLabel(card.category), teamLabel(card.category, card.team)],
-      ["Rarity", rarityLabel(card.rarity)],
       ["Grading company", card.gradingCompany],
       ["Grade", card.grade],
-      ["Quantity", String(card.quantity)],
-      ["Purchase price", card.purchasePrice ? formatMoney(card.purchasePrice) : null],
     ] as [string, string | null][]
   ).filter((f): f is [string, string] => !!f[1]);
 
+  const metaLine = [card.setName, card.cardNumber ? `#${card.cardNumber}` : null, rarityLabel(card.rarity)].filter(Boolean).join(" · ");
+  const homes = [
+    ...card.binderCards.map((bc) => ({ key: `b-${bc.binder.id}`, kind: "Binder", name: bc.binder.name, href: `/binders/${bc.binder.id}` })),
+    ...card.deckCards.map((dc) => ({ key: `d-${dc.deck.id}`, kind: "Deck", name: `${dc.deck.name} (×${dc.quantity})`, href: `/decks/${dc.deck.id}` })),
+  ];
+
   return (
     <AppShell active={back.nav} user={{ name: user.name ?? user.email, plan: user.plan }}>
-      <div className="topbar">
-        <div>
-          <Link href={back.href} className="back-link">
-            {back.label}
-          </Link>
-          <h1 className="topbar-title">{card.name}</h1>
-        </div>
-        <div style={{ display: "flex", gap: 10, marginLeft: "auto" }}>
+      <div className="topbar" style={{ paddingBottom: 8 }}>
+        <Link href={back.href} className="back-link" style={{ margin: 0 }}>
+          {back.label}
+        </Link>
+        <div className="topbar-actions">
           <Link href={`/cards/${card.id}/edit`} className="btn btn-secondary">
             Edit
           </Link>
@@ -139,61 +144,95 @@ export default async function CardDetailPage({
         </div>
       </div>
 
-      <div className="page-pad" style={{ display: "flex", gap: 32, alignItems: "flex-start", flexWrap: "wrap" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, flex: "none" }}>
-          <div className="card-photo" style={{ width: 220, aspectRatio: "5/7" }}>
-            {heroImage ? (
-              <ZoomableImage src={heroImage} alt={card.name} />
-            ) : (
-              <span className="card-photo-label">CARD PHOTO</span>
+      <div className="page-pad card-page">
+        <div className="card-hero">
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
+            <div className="card-photo card-hero-image" style={{ background: heroImage ? undefined : gameTint(card.category) }}>
+              {heroImage ? <ZoomableImage src={heroImage} alt={card.name} /> : <span className="card-photo-label">NO PHOTO</span>}
+            </div>
+            {showGallery && (
+              <div style={{ alignSelf: "flex-start" }}>
+                <div style={{ fontSize: 13, color: "var(--text-soft)", marginBottom: 6 }}>Your photo</div>
+                <div className="card-photo" style={{ width: 90 }}>
+                  <ZoomableImage src={card.imageUrl!} alt={`${card.name} — your photo`} />
+                </div>
+              </div>
             )}
           </div>
 
-          {showGallery && (
-            <div>
-              <div style={{ fontSize: 12.5, color: "var(--text-soft)", marginBottom: 6 }}>Your photo</div>
-              <div className="card-photo" style={{ width: 90, aspectRatio: "5/7" }}>
-                <ZoomableImage src={card.imageUrl!} alt={`${card.name} — your photo`} />
+          <div className="card-hero-info">
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <h1 className="card-title">{card.name}</h1>
+              {metaLine && <div style={{ color: "var(--text-soft)", fontSize: 15.5 }}>{metaLine}</div>}
+              <div className="card-chips">
+                <span className="badge badge-outline">{categoryLabel(card.category)}</span>
+                <span className={`badge condition-${card.condition}`}>{card.condition}</span>
+                {card.quantity > 1 && <span className="badge badge-outline">×{card.quantity}</span>}
+                {card.gradingCompany && card.grade && (
+                  <span className="badge badge-good">
+                    {card.gradingCompany} {card.grade}
+                  </span>
+                )}
               </div>
             </div>
-          )}
-        </div>
 
-        <div style={{ flex: 1, minWidth: 260, display: "flex", flexDirection: "column", gap: 24 }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <div>
-              <span className={`condition-pill condition-${card.condition}`}>{card.condition}</span>
-            </div>
-            <div>
-              <div style={{ fontSize: 13.5, color: "var(--text-soft)", marginBottom: 2 }}>Current value</div>
-              <div style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: 34, lineHeight: 1.15, marginBottom: 12 }}>
-                {formatMoney(card.currentValue)}
+            <section aria-label="Value" className="ink-card" style={{ padding: 20, display: "flex", flexDirection: "column", gap: 14 }}>
+              <div>
+                <div className="value-band-label">Market value</div>
+                <div className="num-display" style={{ fontSize: 52 }}>
+                  {formatMoney(card.currentValue)}
+                </div>
               </div>
-              <RefreshPrice cardId={card.id} />
-            </div>
+              {card.purchasePrice && (
+                <div style={{ fontSize: 14, color: "var(--ink-soft)", borderTop: "1px solid #2e323b", paddingTop: 12 }}>
+                  Paid <strong style={{ color: "#fff" }}>{formatMoney(card.purchasePrice)}</strong>
+                </div>
+              )}
+              <RefreshPrice cardId={card.id} onDark />
+            </section>
+
+            {fields.length > 0 && (
+              <dl className="surface-card card-facts">
+                {fields.map(([label, value]) => (
+                  <div key={label}>
+                    <dt>{label}</dt>
+                    <dd>{value}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+
+            <section aria-label="Where it lives" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <h2 className="section-title">Where it lives</h2>
+              {homes.length === 0 ? (
+                <p style={{ color: "var(--text-soft)" }}>Not in a binder or deck yet.</p>
+              ) : (
+                <div className="surface-card list-card">
+                  {homes.map((h) => (
+                    <Link key={h.key} href={h.href} className="list-row">
+                      <span>
+                        <span style={{ color: "var(--text-soft)" }}>{h.kind}</span> · <strong>{h.name}</strong>
+                      </span>
+                      <IconChevronRight size={16} />
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            {card.notes && (
+              <section aria-label="Notes" style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <h2 className="section-title">Notes</h2>
+                <p style={{ fontSize: 15, margin: 0, whiteSpace: "pre-wrap" }}>{card.notes}</p>
+              </section>
+            )}
           </div>
-
-          <dl style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "8px 24px" }}>
-            {fields.map(([label, value]) => (
-              <div key={label} style={{ display: "contents" }}>
-                <dt style={{ fontSize: 13.5, color: "var(--text-soft)" }}>{label}</dt>
-                <dd style={{ fontSize: 14.5 }}>{value}</dd>
-              </div>
-            ))}
-          </dl>
-
-          {card.notes && (
-            <div>
-              <div style={{ fontSize: 13.5, color: "var(--text-soft)", marginBottom: 6 }}>Notes</div>
-              <p style={{ fontSize: 14.5, margin: 0, whiteSpace: "pre-wrap" }}>{card.notes}</p>
-            </div>
-          )}
         </div>
 
         {(presented || needsDetails) && (
           <div style={{ flexBasis: "100%", display: "flex", flexDirection: "column", gap: 16 }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
-              <h2 style={{ fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 19, margin: 0 }}>Card data</h2>
+              <h2 className="section-title">Card data</h2>
               {presented && (
                 <span style={{ fontSize: 13, color: "var(--text-soft)" }}>
                   From {presented.sourceLabel} ·{" "}
